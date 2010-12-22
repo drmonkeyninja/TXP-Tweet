@@ -44,7 +44,7 @@ if (!isset($prefs['arc_twitter_user']))
 if (!isset($prefs['arc_twitter_prefix']))
 	set_pref('arc_twitter_prefix','Just posted:', 'arc_twitter', 2, 'text_input');
 if (!isset($prefs['arc_twitter_cache_dir']))
-	set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].'/tmp', 'arc_twitter', 1, 'text_input');
+	set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].$prefs['tempdir'], 'arc_twitter', 1, 'text_input');
 if (!isset($prefs['arc_twitter_tweet_default']))
 	set_pref('arc_twitter_tweet_default', 1, 'arc_twitter', 2, 'yesnoRadio');
 if (!isset($prefs['arc_twitter_url_method']))
