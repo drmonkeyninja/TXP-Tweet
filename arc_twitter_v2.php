@@ -452,7 +452,7 @@ function arc_twitter_prefs($event,$step)
                 tr(td(
                     ('<p>'.href('Sign-in to Twitter'
                             ,$twit->getAuthorizeURL($request))
-                        .' and follow the instructions to allow TXP Tweet to use your account.</p>')
+                        .' and follow the instructions to allow TXP Tweet to use your account. If you are already signed in to Twitter then that account will be associated with TXP Tweet so you may need to sign out first if you want to use a different account.</p>')
                 )).endTable();
     } elseif ($step=='validate') {
         $twit = new arc_twitter($arc_twitter_consumerKey
