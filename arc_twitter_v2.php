@@ -866,7 +866,9 @@ class arc_twitter extends TwitterOAuth {
     public static function makeLinks($text)
     {
         $url = '/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i';
-    $text = preg_replace($url, "<a href='$0'>$0</a>", $text);
+        $text = preg_replace($url, "<a href='$0'>$0</a>", $text);
+        $url = '/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i';
+        $text = preg_replace($url, "<a href='http://www.$2$3'>www.$2$3</a>", $text);       
         $text = preg_replace("/(^|\s)@([a-z_A-Z0-9]+)/",
             "$1@<a href='http://twitter.com/$2'>$2</a>",$text);
         $text = preg_replace("/(^|\s)(\#([a-z_A-Z0-9:_-]+))/",
