@@ -42,17 +42,17 @@ register_callback('arc_twitter_prefs','plugin_prefs.arc_twitter');
 if (!isset($prefs['arc_twitter_user']))
     set_pref('arc_twitter_user', '', 'arc_twitter', 1, 'text_input');
 if (!isset($prefs['arc_twitter_prefix']))
-	set_pref('arc_twitter_prefix','Just posted:', 'arc_twitter', 2, 'text_input');
+  set_pref('arc_twitter_prefix','Just posted:', 'arc_twitter', 2, 'text_input');
 if (!isset($prefs['arc_twitter_cache_dir']))
-	set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].$prefs['tempdir'], 'arc_twitter', 1, 'text_input');
+  set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].$prefs['tempdir'], 'arc_twitter', 1, 'text_input');
 if (!isset($prefs['arc_twitter_tweet_default']))
-	set_pref('arc_twitter_tweet_default', 1, 'arc_twitter', 2, 'yesnoRadio');
+  set_pref('arc_twitter_tweet_default', 1, 'arc_twitter', 2, 'yesnoRadio');
 if (!isset($prefs['arc_twitter_url_method']))
-	set_pref('arc_twitter_url_method', 'tinyurl', 'arc_twitter', 2,
+  set_pref('arc_twitter_url_method', 'tinyurl', 'arc_twitter', 2,
     'arc_twitter_url_method_select');
 // Make sure that the Twitter tab has been defined
 if (!isset($prefs['arc_twitter_tab'])) {
-	set_pref('arc_twitter_tab', 'extensions', 'arc_twitter', 2,
+  set_pref('arc_twitter_tab', 'extensions', 'arc_twitter', 2,
     'arc_twitter_tab_select');
     $prefs['arc_twitter_tab'] = 'extensions';
 }
@@ -81,60 +81,58 @@ if (@txpinterface == 'admin') {
 
 function arc_twitter($atts)
 {
-    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
+  global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
 
-		extract(lAtts(array(
-            'user'      => $prefs['arc_twitter_user'],
-            'password'  => '',
-            'timeline'  => 'user',
-            'limit'     => '10',
-            'retweets'  => false,
-            'dateformat'=> $prefs['archive_dateformat'],
-            'caching'   => '1',
-            'cache_dir' => $prefs['arc_twitter_cache_dir'],
-            'cache_time'=> '5',
-		    'label'     => '',
-		    'labeltag'  => '',
-		    'break'     => 'li',
-		    'wraptag'   => '',
-            'class'     => __FUNCTION__,
-            'class_posted' => __FUNCTION__.'-posted'
-		),$atts));
+  extract(lAtts(array(
+    'user'      => $prefs['arc_twitter_user'],
+    'password'  => '',
+    'timeline'  => 'user',
+    'limit'     => '10',
+    'retweets'  => false,
+    'dateformat'=> $prefs['archive_dateformat'],
+    'caching'   => '1',
+    'cache_dir' => $prefs['arc_twitter_cache_dir'],
+    'cache_time'=> '5',
+    'label'     => '',
+    'labeltag'  => '',
+    'break'     => 'li',
+    'wraptag'   => '',
+    'class'     => __FUNCTION__,
+    'class_posted' => __FUNCTION__.'-posted'
+    ),$atts));
 
-        $twit = new arc_Twitter($arc_twitter_consumerKey
-            , $arc_twitter_consumerSecret);
+  $twit = new arc_Twitter($arc_twitter_consumerKey, $arc_twitter_consumerSecret);
 
-        if ($caching) {  // turn on caching, recommended (default)
-            $twit->setCaching(true);
-            $twit->cacheDir($cache_dir);
-            $twit->cacheTime($cache_time);
-        } else {  // turn off caching, not recommended other than for testing
-            $twit->setCaching(false);
-        }
+  if ($caching) {  // turn on caching, recommended (default)
+    $twit->setCaching(true);
+    $twit->cacheDir($cache_dir);
+    $twit->cacheTime($cache_time);
+  } else {  // turn off caching, not recommended other than for testing
+    $twit->setCaching(false);
+  }
         
-        switch ($timeline) {
-          case 'home': case 'friends':
-            $timeline = 'statuses/friends_timeline'; break;
-          case 'mentions':
-            $timeline = 'statuses/mentions'; break;
-          case 'user': default: $timeline = 'statuses/user_timeline';
-        }
+  switch ($timeline) {
+    case 'home': case 'friends':
+      $timeline = 'statuses/friends_timeline'; break;
+    case 'mentions':
+      $timeline = 'statuses/mentions'; break;
+    case 'user': default: $timeline = 'statuses/user_timeline';
+  }
 
-        $out = array();
-        $xml = $twit->get($timeline
-            , array('screen_name'=>$user,'count'=>$limit,'include_rts'=>$retweets));
-        if ($xml) {
-            $tweets = @$xml->xpath('/statuses/status');
-            if ($tweets) foreach ($tweets as $tweet) {
-                $time = strtotime(htmlentities($tweet->created_at));
-                $date = strftime($dateformat,$time);
-                $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
-                    .' '.tag(htmlentities($date),'span'
-                        ,' class="'.$class_posted.'"');
-            }
+  $out = array();
+  $xml = $twit->get($timeline
+    , array('screen_name'=>$user,'count'=>$limit,'include_rts'=>$retweets));
+  if ($xml) {
+    $tweets = @$xml->xpath('/statuses/status');
+    if ($tweets) foreach ($tweets as $tweet) {
+      $time = strtotime(htmlentities($tweet->created_at));
+      $date = strftime($dateformat,$time);
+      $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
+        .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
+    }
 
-            return doLabel($label, $labeltag).doWrap($out, $wraptag, $break, $class);
-        }
+    return doLabel($label, $labeltag).doWrap($out, $wraptag, $break, $class);
+  }
 
 }
 
@@ -142,7 +140,7 @@ function arc_twitter_search($atts)
 {
     global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
 
-		extract(lAtts(array(
+    extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'],
         'search'    => '',
         'hashtags'  => '',
@@ -155,14 +153,14 @@ function arc_twitter_search($atts)
         'caching'   => '1',
         'cache_dir' => $prefs['arc_twitter_cache_dir'],
         'cache_time'=> '5',
-		    'label'     => '',
-		    'labeltag'  => '',
-		    'break'     => 'li',
-		    'wraptag'   => '',
+        'label'     => '',
+        'labeltag'  => '',
+        'break'     => 'li',
+        'wraptag'   => '',
         'class'     => __FUNCTION__,
         'class_posted' => __FUNCTION__.'-posted',
         'class_user'   => __FUNCTION__.'-user'
-		),$atts));
+    ),$atts));
 
         $twit = new arc_Twitter($arc_twitter_consumerKey
             , $arc_twitter_consumerSecret);
@@ -224,71 +222,71 @@ function arc_twitter_search($atts)
 function arc_twitter_tweet($atts) {
     global $thisarticle; 
 
-		extract(lAtts(array(
-		  'id'        => $thisarticle['thisid'],
-		  'inc_url'   => true
-		),$atts));
+    extract(lAtts(array(
+      'id'        => $thisarticle['thisid'],
+      'inc_url'   => true
+    ),$atts));
 
-		if ($id) {
-		  // Fetch arc_twitter stuff to build tweet from
-	    $tweet = ($inc_url) ? safe_row("tweet", 'arc_twitter', "article_id={$id}")
-	      : safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet"
-	        , 'arc_twitter', "article_id={$id}");
-	  }
-	  
-	  if ($tweet['tweet']) return $tweet['tweet'];
+    if ($id) {
+      // Fetch arc_twitter stuff to build tweet from
+      $tweet = ($inc_url) ? safe_row("tweet", 'arc_twitter', "article_id={$id}")
+        : safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet"
+          , 'arc_twitter', "article_id={$id}");
+    }
+    
+    if ($tweet['tweet']) return $tweet['tweet'];
 }
 
 function arc_twitter_tweet_url($atts, $thing=null) {
     global $thisarticle,$prefs; 
 
-		extract(lAtts(array(
-		  'id'      => $thisarticle['thisid'],
-	    'title'   => '',
+    extract(lAtts(array(
+      'id'      => $thisarticle['thisid'],
+      'title'   => '',
       'class'   => ''
-		),$atts));
+    ),$atts));
 
-		if ($id) {
-		  // Fetch arc_twitter stuff to build tweet from
-	    $tweet = safe_row("tweet_id"
-	      , 'arc_twitter', "article_id={$id}");
-	  }
-	  
-	  if ($tweet['tweet_id']) {
-	    $url = "http://twitter.com/".$prefs['arc_twitter_user']."/status/".$tweet['tweet_id'];
-	    if ($thing===null) {
-	      return $url;
-	    }	    
-	    return href(parse($thing), $url,
+    if ($id) {
+      // Fetch arc_twitter stuff to build tweet from
+      $tweet = safe_row("tweet_id"
+        , 'arc_twitter', "article_id={$id}");
+    }
+    
+    if ($tweet['tweet_id']) {
+      $url = "http://twitter.com/".$prefs['arc_twitter_user']."/status/".$tweet['tweet_id'];
+      if ($thing===null) {
+        return $url;
+      }      
+      return href(parse($thing), $url,
         ($title ? ' title="'.$title.'"' : '')
         .($class ? ' class="'.$class.'"' : ''));
-	  }
+    }
 }
 
 function arc_twitter_tinyurl($atts, $thing=null) {
     global $thisarticle; 
 
-		extract(lAtts(array(
-		  'id'      => $thisarticle['thisid'],
-	    'title'   => '',
+    extract(lAtts(array(
+      'id'      => $thisarticle['thisid'],
+      'title'   => '',
       'class'   => ''
-		),$atts));
+    ),$atts));
 
-		if ($id) {
-		  // Fetch arc_twitter stuff to build tweet from
-	    $tweet = safe_row("tinyurl"
-	      , 'arc_twitter', "article_id={$id}");
-	  }
-	  
-	  if ($tweet['tinyurl']) {
-	    if ($thing===null) {
-	      return $tweet['tinyurl'];
-	    }
-	    
-	    return href(parse($thing), $tweet['tinyurl'],
+    if ($id) {
+      // Fetch arc_twitter stuff to build tweet from
+      $tweet = safe_row("tinyurl"
+        , 'arc_twitter', "article_id={$id}");
+    }
+    
+    if ($tweet['tinyurl']) {
+      if ($thing===null) {
+        return $tweet['tinyurl'];
+      }
+      
+      return href(parse($thing), $tweet['tinyurl'],
         ($title ? ' title="'.$title.'"' : '')
         .($class ? ' class="'.$class.'"' : ''));
-	  }
+    }
 }
 
 function arc_twitter_retweet($atts, $thing=null)
@@ -296,7 +294,7 @@ function arc_twitter_retweet($atts, $thing=null)
     global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
     global $thisarticle; 
 
-		extract(lAtts(array(
+    extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'], // via user account
         'url'       => '',
         'text'      => '',
@@ -305,59 +303,59 @@ function arc_twitter_retweet($atts, $thing=null)
         'lang'      => '',
         'count'     => 'horizontal',
         'include_js'=> true,
-		    'wraptag'   => '',
+        'wraptag'   => '',
         'class'     => 'twitter-share-button'
-		),$atts));
-		
-		$q = ''; // query string
-		
-		if ($id=$thisarticle['thisid']) {
-		  // Fetch arc_twitter stuff to build tweet from
-	    $row = safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet,tinyurl"
-	      , 'arc_twitter', "article_id={$id}");
-		
-		  if ($url=='') {
-		    $url = ($url) ? $url : permlinkurl($thisarticle);
-		    $q = 'url='.urlencode($url);
-		  }
-		  if ($text=='') {
-		    $text = ($row['tweet']) ? $row['tweet'] : $thisarticle['title'];
-		  }
-		  $q .= ($q ? '&amp;' : '').'text='.urlencode($text);
-		}
-		if ($user) {
-		  $q .= ($q ? '&amp;' : '').'via='.urlencode($user);
-		}
-		if ($follow1&&$follow2) {
-		  $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.':'.$follow2);
-		} elseif ($follow1||$follow2) {
-		  $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.$follow2);
-		}
-		
-		switch ($lang) {
-		  case 'fr': break; case 'de': break; case 'es': break; case 'jp': break;
-		  default:
-		    $lang = 'en';
-		}
-		$q .= ($q ? '&amp;' : '').'lang='.urlencode($lang);
-		
-		switch ($count) {
-		  case 'none': break; case 'vertical': break;
-		  default:
-		    $count = 'horizontal';
-		}
-		$q .= ($q ? '&amp;' : '').'count='.urlencode($count);
-		
-		$thing = ($thing===null) ? 'Tweet' : parse($thing);
-		
-		$html = href($thing,'http://twitter.com/share?'.$q
-		  , ' class="'.$class.'"');
-		
-		$js = ($include_js) ?
-		  '<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>'
-		  : '';
-		
-		return $js.$html;
+    ),$atts));
+    
+    $q = ''; // query string
+    
+    if ($id=$thisarticle['thisid']) {
+      // Fetch arc_twitter stuff to build tweet from
+      $row = safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet,tinyurl"
+        , 'arc_twitter', "article_id={$id}");
+    
+      if ($url=='') {
+        $url = ($url) ? $url : permlinkurl($thisarticle);
+        $q = 'url='.urlencode($url);
+      }
+      if ($text=='') {
+        $text = ($row['tweet']) ? $row['tweet'] : $thisarticle['title'];
+      }
+      $q .= ($q ? '&amp;' : '').'text='.urlencode($text);
+    }
+    if ($user) {
+      $q .= ($q ? '&amp;' : '').'via='.urlencode($user);
+    }
+    if ($follow1&&$follow2) {
+      $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.':'.$follow2);
+    } elseif ($follow1||$follow2) {
+      $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.$follow2);
+    }
+    
+    switch ($lang) {
+      case 'fr': break; case 'de': break; case 'es': break; case 'jp': break;
+      default:
+        $lang = 'en';
+    }
+    $q .= ($q ? '&amp;' : '').'lang='.urlencode($lang);
+    
+    switch ($count) {
+      case 'none': break; case 'vertical': break;
+      default:
+        $count = 'horizontal';
+    }
+    $q .= ($q ? '&amp;' : '').'count='.urlencode($count);
+    
+    $thing = ($thing===null) ? 'Tweet' : parse($thing);
+    
+    $html = href($thing,'http://twitter.com/share?'.$q
+      , ' class="'.$class.'"');
+    
+    $js = ($include_js) ?
+      '<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>'
+      : '';
+    
+    return $js.$html;
 }
 
 /*
@@ -800,10 +798,10 @@ function arc_article_tweet($event,$step)
 
 function arc_shorten_url($url, $method='', $atts=array())
 {
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_HEADER, 0);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_HEADER, 0);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
   switch ($method) {
     case 'smd': // create a shortened URL using SMD Short URL
@@ -839,40 +837,6 @@ function arc_shorten_url($url, $method='', $atts=array())
 
 }
 
-/*function arc_shorten_url($url, $method='', $atts=array())
-{
-
-    switch ($method) {
-        case 'smd': // create a shortened URL using SMD Short URL
-            return ($atts['id']) ? hu.$atts['id'] : false; break;
-        case 'isgd':
-
-            $u = 'http://is.gd/api.php?longurl='.urlencode($url);
-            $tinyurl = @file_get_contents($u);
-            if ($tinyurl!='Error' && $tinyurl!='') {
-                return $tinyurl;
-            } else {
-                trigger_error('arc_twitter failed to get a is.gd URL for '
-                    .$url,E_USER_WARNING);
-            }
-            break;
-
-        case 'tinyurl': default: // create a shortened URL using TinyURL
-
-            $u = 'http://tinyurl.com/api-create.php?url='.urlencode($url);
-            $tinyurl = @file_get_contents($u);
-            if ($tinyurl!='Error' && $tinyurl!='') {
-                return $tinyurl;
-            } else {
-                trigger_error('arc_twitter failed to get a TinyURL for '.$url,E_USER_WARNING);
-            }
-
-    }
-
-    return false; // fail
-
-}*/
-
 /*
  *******************************************************************************
 */
@@ -902,13 +866,13 @@ class arc_twitter extends TwitterOAuth {
     public static function makeLinks($text)
     {
         $url = '/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i';
-		$text = preg_replace($url, "<a href='$0'>$0</a>", $text);
+    $text = preg_replace($url, "<a href='$0'>$0</a>", $text);
         $text = preg_replace("/(^|\s)@([a-z_A-Z0-9]+)/",
             "$1@<a href='http://twitter.com/$2'>$2</a>",$text);
         $text = preg_replace("/(^|\s)(\#([a-z_A-Z0-9:_-]+))/",
             "$1<a href='http://twitter.com/search?q=%23$3'>$2</a>",$text);
         return $text;
-	}
+  }
 
     public function get($url, $params = array())
     {
@@ -1649,7 +1613,7 @@ class OAuthRequest {
    */
   public function to_header($realm=null) {
     $first = true;
-	if($realm) {
+  if($realm) {
       $out = 'Authorization: OAuth realm="' . OAuthUtil::urlencode_rfc3986($realm) . '"';
       $first = false;
     } else
@@ -2108,271 +2072,271 @@ if (0) {
 # --- BEGIN PLUGIN HELP ---
 <h1 class="title"><span class="caps">TXP</span> Tweet (arc_twitter for Textpattern)</h1>
 
-	<ol>
-		<li><a href="#arc_twitter_author">Author</a></li>
-		<li><a href="#arc_twitter_installation">Installation / Uninstallation</a></li>
-		<li><a href="#arc_twitter_tag">The arc_twitter tag</a></li>
-		<li><a href="#arc_twitter_search_tag">The arc_twitter_search tag</a></li>
-		<li><a href="#arc_twitter_caching">Caching</a></li>
-		<li><a href="#arc_twitter_prefs">Preferences</a></li>
-		<li><a href="#arc_twitter_article">Tweeting articles</a></li>
-		<li><a href="#arc_twitter_admin">The Twitter tab</a></li>
-	</ol>
+  <ol>
+    <li><a href="#arc_twitter_author">Author</a></li>
+    <li><a href="#arc_twitter_installation">Installation / Uninstallation</a></li>
+    <li><a href="#arc_twitter_tag">The arc_twitter tag</a></li>
+    <li><a href="#arc_twitter_search_tag">The arc_twitter_search tag</a></li>
+    <li><a href="#arc_twitter_caching">Caching</a></li>
+    <li><a href="#arc_twitter_prefs">Preferences</a></li>
+    <li><a href="#arc_twitter_article">Tweeting articles</a></li>
+    <li><a href="#arc_twitter_admin">The Twitter tab</a></li>
+  </ol>
 
-	<p><span class="caps">TXP</span> Tweet provides access to your Twitter account through both the admin interface and the public side of your site. Update Twitter when you post a new article (with article-by-article opt out option), update and view your Twitter feed through the admin Twitter tab, and display Twitter feeds on your site.</p>
+  <p><span class="caps">TXP</span> Tweet provides access to your Twitter account through both the admin interface and the public side of your site. Update Twitter when you post a new article (with article-by-article opt out option), update and view your Twitter feed through the admin Twitter tab, and display Twitter feeds on your site.</p>
 
-	<p>Requirements:-</p>
+  <p>Requirements:-</p>
 
-	<ul>
-		<li>Textpattern 4.2+</li>
-		<li><span class="caps">PHP</span> 5 and cURL</li>
-	</ul>
+  <ul>
+    <li>Textpattern 4.2+</li>
+    <li><span class="caps">PHP</span> 5 and cURL</li>
+  </ul>
 
-	<h2 class="section" id="arc_twitter_author">Author</h2>
+  <h2 class="section" id="arc_twitter_author">Author</h2>
 
-	<p><a href="http://www.redhotchilliproject.com">Andy Carter</a>. For other Textpattern plugins by me, or to make a donation, visit my <a href="http://www.redhotchilliproject.com/txp-plugins">Plugins page</a>.</p>
+  <p><a href="http://www.redhotchilliproject.com">Andy Carter</a>. For other Textpattern plugins by me, or to make a donation, visit my <a href="http://www.redhotchilliproject.com/txp-plugins">Plugins page</a>.</p>
 
-	<p>Thanks to <a href="http://manfre.net/">Michael Manfre</a> for inspiration for the article tweet part of this plugin based on his <span class="tag">mem_twitter</span> plugin.  Additional thanks to the great Textpattern community for helping to test this plugin and for suggesting new features. The OAuth part of the plugin is thanks to <a href="http://twitter.com/abraham">Abraham Williams</a>.</p>
+  <p>Thanks to <a href="http://manfre.net/">Michael Manfre</a> for inspiration for the article tweet part of this plugin based on his <span class="tag">mem_twitter</span> plugin.  Additional thanks to the great Textpattern community for helping to test this plugin and for suggesting new features. The OAuth part of the plugin is thanks to <a href="http://twitter.com/abraham">Abraham Williams</a>.</p>
 
-	<h2 class="section" id="arc_twitter_installation">Installation / Uninstallation</h2>
+  <h2 class="section" id="arc_twitter_installation">Installation / Uninstallation</h2>
 
-	<p>To install go to the &#8216;plugins&#8217; tab under &#8216;admin&#8217; and paste the plugin code into the &#8216;Install plugin&#8217; box, &#8216;upload&#8217; and then &#8216;install&#8217;. Finally activate the plugin.</p>
+  <p>To install go to the &#8216;plugins&#8217; tab under &#8216;admin&#8217; and paste the plugin code into the &#8216;Install plugin&#8217; box, &#8216;upload&#8217; and then &#8216;install&#8217;. Finally activate the plugin.</p>
 
-	<p>Before you start using <span class="tag">arc_twitter</span> you will need to make sure that the cache directory is writable. See the &#8216;Caching&#8217; subsection below for further information.</p>
+  <p>Before you start using <span class="tag">arc_twitter</span> you will need to make sure that the cache directory is writable. See the &#8216;Caching&#8217; subsection below for further information.</p>
 
-	<p><span class="tag">arc_twitter</span> should now be ready for use on the public-side of your site.</p>
+  <p><span class="tag">arc_twitter</span> should now be ready for use on the public-side of your site.</p>
 
-	<p>To unlock the admin features of this plugin you will need to associate your site with a Twitter account by connecting to Twitter from the plugin&#8217;s options screen. Click on the link to connect to Twitter, you will be asked to login to Twitter, clicking this link will temporarily take you to the Twitter site where you will be asked to login and approve access for <span class="caps">TXP</span> Tweet to read and write to your Twitter account. If all is successful you will be returned to the options screen and your user name will appear.</p>
+  <p>To unlock the admin features of this plugin you will need to associate your site with a Twitter account by connecting to Twitter from the plugin&#8217;s options screen. Click on the link to connect to Twitter, you will be asked to login to Twitter, clicking this link will temporarily take you to the Twitter site where you will be asked to login and approve access for <span class="caps">TXP</span> Tweet to read and write to your Twitter account. If all is successful you will be returned to the options screen and your user name will appear.</p>
 
-	<p>At any time you can disassociate your Twitter account with <span class="caps">TXP</span> Tweet via your Twitter account preferences on the <a href="http://www.twitter.com">Twitter website</a>.</p>
+  <p>At any time you can disassociate your Twitter account with <span class="caps">TXP</span> Tweet via your Twitter account preferences on the <a href="http://www.twitter.com">Twitter website</a>.</p>
 
-	<p>To uninstall <span class="tag">arc_twitter</span> simply delete the plugin from the &#8216;Plugins&#8217; tab.  This will remove the plugin code, delete related preferences and drop the <span class="tag">arc_twitter</span> table from your Textpattern database.</p>
+  <p>To uninstall <span class="tag">arc_twitter</span> simply delete the plugin from the &#8216;Plugins&#8217; tab.  This will remove the plugin code, delete related preferences and drop the <span class="tag">arc_twitter</span> table from your Textpattern database.</p>
 
-	<h2 class="section" id="arc_twitter_tag">The arc_twitter tag</h2>
+  <h2 class="section" id="arc_twitter_tag">The arc_twitter tag</h2>
 
-	<h3>Syntax</h3>
+  <h3>Syntax</h3>
 
-	<p>&lt;txp:arc_twitter user=&quot;drmonkeyninja&quot; /&gt;</p>
+  <p>&lt;txp:arc_twitter user=&quot;drmonkeyninja&quot; /&gt;</p>
 
-	<h3>Usage</h3>
+  <h3>Usage</h3>
 
-	<table>
-		<tr>
-			<th>Attribute</th>
-			<th>Description</th>
-			<th>Default</th>
-			<th>Example</th>
-		</tr>
-		<tr>
-			<td>user</td>
-			<td>Twitter user name</td>
-			<td> <em>arc_twitter username</em></td>
-			<td>user=&quot;drmonkeyninja&quot;</td>
-		</tr>
-		<tr>
-			<td>limit</td>
-			<td>Maximum number of tweets to display (max. 200)</td>
-			<td>10</td>
-			<td>limit=&quot;25&quot;</td>
-		</tr>
-		<tr>
-			<td>retweets</td>
-			<td>Include native retweets</td>
-			<td>false</td>
-			<td>retweets=&quot;true&quot;</td>
-		</tr>
-		<tr>
-			<td>dateformat</td>
-			<td>Format that update dates will appear as</td>
-			<td> <em>Archive date format</em></td>
-			<td>dateformat=&quot;%b %Oe, %I:%M %p&quot;</td>
-		</tr>
-		<tr>
-			<td>label</td>
-			<td>Label for the top of the list</td>
-			<td> <em>no label</em></td>
-			<td>label=&quot;My Twitter timeline&quot;</td>
-		</tr>
-		<tr>
-			<td>labeltag</td>
-			<td>Independent wraptag for label</td>
-			<td> <em>unset</em></td>
-			<td>labeltag=&quot;h3&quot;</td>
-		</tr>
-		<tr>
-			<td>break</td>
-			<td><span class="caps"><span class="caps">HTML</span></span> tag (without brackets), or string, used to separate the updates</td>
-			<td>li</td>
-			<td>break=&quot;br&quot;</td>
-		</tr>
-		<tr>
-			<td>wraptag</td>
-			<td><span class="caps"><span class="caps">HTML</span></span> tag to be used as the wraptag, without brackets</td>
-			<td> <em>unset</em></td>
-			<td>wraptag=&quot;ul&quot;</td>
-		</tr>
-		<tr>
-			<td>class</td>
-			<td><span class="caps"><span class="caps">CSS</span></span> class attribute for wraptag</td>
-			<td>arc_twitter</td>
-			<td>class=&quot;twitter&quot;</td>
-		</tr>
-		<tr>
-			<td>class_posted</td>
-			<td><span class="caps"><span class="caps">CSS</span></span> class attribute applied to span tag around posted date</td>
-			<td>arc_twitter-posted</td>
-		</tr>
-	</table>
+  <table>
+    <tr>
+      <th>Attribute</th>
+      <th>Description</th>
+      <th>Default</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>user</td>
+      <td>Twitter user name</td>
+      <td> <em>arc_twitter username</em></td>
+      <td>user=&quot;drmonkeyninja&quot;</td>
+    </tr>
+    <tr>
+      <td>limit</td>
+      <td>Maximum number of tweets to display (max. 200)</td>
+      <td>10</td>
+      <td>limit=&quot;25&quot;</td>
+    </tr>
+    <tr>
+      <td>retweets</td>
+      <td>Include native retweets</td>
+      <td>false</td>
+      <td>retweets=&quot;true&quot;</td>
+    </tr>
+    <tr>
+      <td>dateformat</td>
+      <td>Format that update dates will appear as</td>
+      <td> <em>Archive date format</em></td>
+      <td>dateformat=&quot;%b %Oe, %I:%M %p&quot;</td>
+    </tr>
+    <tr>
+      <td>label</td>
+      <td>Label for the top of the list</td>
+      <td> <em>no label</em></td>
+      <td>label=&quot;My Twitter timeline&quot;</td>
+    </tr>
+    <tr>
+      <td>labeltag</td>
+      <td>Independent wraptag for label</td>
+      <td> <em>unset</em></td>
+      <td>labeltag=&quot;h3&quot;</td>
+    </tr>
+    <tr>
+      <td>break</td>
+      <td><span class="caps"><span class="caps">HTML</span></span> tag (without brackets), or string, used to separate the updates</td>
+      <td>li</td>
+      <td>break=&quot;br&quot;</td>
+    </tr>
+    <tr>
+      <td>wraptag</td>
+      <td><span class="caps"><span class="caps">HTML</span></span> tag to be used as the wraptag, without brackets</td>
+      <td> <em>unset</em></td>
+      <td>wraptag=&quot;ul&quot;</td>
+    </tr>
+    <tr>
+      <td>class</td>
+      <td><span class="caps"><span class="caps">CSS</span></span> class attribute for wraptag</td>
+      <td>arc_twitter</td>
+      <td>class=&quot;twitter&quot;</td>
+    </tr>
+    <tr>
+      <td>class_posted</td>
+      <td><span class="caps"><span class="caps">CSS</span></span> class attribute applied to span tag around posted date</td>
+      <td>arc_twitter-posted</td>
+    </tr>
+  </table>
 
-	<h3>Example usage</h3>
+  <h3>Example usage</h3>
 
-	<p>&lt;txp:arc_twitter user=&quot;drmonkeyninja&quot; limit=&quot;5&quot; wraptag=&quot;ul&quot; break=&quot;li&quot; dateformat=&quot;%b %Oe, %I:%M %p&quot; /&gt;</p>
+  <p>&lt;txp:arc_twitter user=&quot;drmonkeyninja&quot; limit=&quot;5&quot; wraptag=&quot;ul&quot; break=&quot;li&quot; dateformat=&quot;%b %Oe, %I:%M %p&quot; /&gt;</p>
 
-	<p>Produces a bullet point list of the last 5 Twitter updates from drmonkeyninja&#8217;s Twitter feed with a defined date format to override the default archive date format.</p>
+  <p>Produces a bullet point list of the last 5 Twitter updates from drmonkeyninja&#8217;s Twitter feed with a defined date format to override the default archive date format.</p>
 
-	<h2 class="section" id="arc_twitter_search_tag">The arc_twitter_search tag</h2>
+  <h2 class="section" id="arc_twitter_search_tag">The arc_twitter_search tag</h2>
 
-	<h3>Syntax</h3>
+  <h3>Syntax</h3>
 
-	<p>&lt;txp:arc_twitter_search hashtags=&quot;txp&quot; /&gt;</p>
+  <p>&lt;txp:arc_twitter_search hashtags=&quot;txp&quot; /&gt;</p>
 
-	<h3>Usage</h3>
+  <h3>Usage</h3>
 
-	<table>
-		<tr>
-			<th>Attribute</th>
-			<th>Description</th>
-			<th>Default</th>
-			<th>Example</th>
-		</tr>
-		<tr>
-			<td>search</td>
-			<td>Comma separated list of search words</td>
-			<td> <em>unset</em></td>
-			<td>search=&quot;txp,textpattern&quot;</td>
-		</tr>
-		<tr>
-			<td>hashtags</td>
-			<td>Comma separated list of hashtags to search for (not including the hash)</td>
-			<td> <em>unset</em></td>
-			<td>hashtags=&quot;txp,textpattern&quot;</td>
-		</tr>
-		<tr>
-			<td>reply</td>
-			<td>Username of tweets in reply to</td>
-			<td> <em>unset</em></td>
-			<td>reply=&quot;twitter&quot;</td>
-		</tr>
-		<tr>
-			<td>mention</td>
-			<td>Username of user mentioned in tweets (<i>i.e.</i> tweets containing @username)</td>
-			<td> <em>unset</em></td>
-			<td>mention=&quot;twitter&quot;</td>
-		</tr>
-		<tr>
-			<td>limit</td>
-			<td>Maximum number of tweets to display (max. 200)</td>
-			<td>10</td>
-			<td>limit=&quot;25&quot;</td>
-		</tr>
-		<tr>
-			<td>dateformat</td>
-			<td>Format that update dates will appear as</td>
-			<td> <em>Archive date format</em></td>
-			<td>dateformat=&quot;%b %Oe, %I:%M %p&quot;</td>
-		</tr>
-		<tr>
-			<td>label</td>
-			<td>Label for the top of the list</td>
-			<td> <em>no label</em></td>
-		</tr>
-		<tr>
-			<td>labeltag</td>
-			<td>Independent wraptag for label</td>
-			<td> <em>unset</em></td>
-		</tr>
-		<tr>
-			<td>break</td>
-			<td><span class="caps"><span class="caps">HTML</span></span> tag (without brackets), or string, used to separate the updates</td>
-			<td>li</td>
-		</tr>
-		<tr>
-			<td>wraptag</td>
-			<td><span class="caps"><span class="caps">HTML</span></span> tag to be used as the wraptag, without brackets</td>
-			<td> <em>unset</em></td>
-		</tr>
-		<tr>
-			<td>class</td>
-			<td><span class="caps"><span class="caps">CSS</span></span> class attribute for wraptag</td>
-			<td>arc_twitter_search</td>
-		</tr>
-		<tr>
-			<td>class_user</td>
-			<td><span class="caps"><span class="caps">CSS</span></span> class attribute applied to span tag around user name</td>
-			<td>arc_twitter-user</td>
-		</tr>
-		<tr>
-			<td>class_posted</td>
-			<td><span class="caps"><span class="caps">CSS</span></span> class attribute applied to span tag around posted date</td>
-			<td>arc_twitter-posted</td>
-		</tr>
-	</table>
+  <table>
+    <tr>
+      <th>Attribute</th>
+      <th>Description</th>
+      <th>Default</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>search</td>
+      <td>Comma separated list of search words</td>
+      <td> <em>unset</em></td>
+      <td>search=&quot;txp,textpattern&quot;</td>
+    </tr>
+    <tr>
+      <td>hashtags</td>
+      <td>Comma separated list of hashtags to search for (not including the hash)</td>
+      <td> <em>unset</em></td>
+      <td>hashtags=&quot;txp,textpattern&quot;</td>
+    </tr>
+    <tr>
+      <td>reply</td>
+      <td>Username of tweets in reply to</td>
+      <td> <em>unset</em></td>
+      <td>reply=&quot;twitter&quot;</td>
+    </tr>
+    <tr>
+      <td>mention</td>
+      <td>Username of user mentioned in tweets (<i>i.e.</i> tweets containing @username)</td>
+      <td> <em>unset</em></td>
+      <td>mention=&quot;twitter&quot;</td>
+    </tr>
+    <tr>
+      <td>limit</td>
+      <td>Maximum number of tweets to display (max. 200)</td>
+      <td>10</td>
+      <td>limit=&quot;25&quot;</td>
+    </tr>
+    <tr>
+      <td>dateformat</td>
+      <td>Format that update dates will appear as</td>
+      <td> <em>Archive date format</em></td>
+      <td>dateformat=&quot;%b %Oe, %I:%M %p&quot;</td>
+    </tr>
+    <tr>
+      <td>label</td>
+      <td>Label for the top of the list</td>
+      <td> <em>no label</em></td>
+    </tr>
+    <tr>
+      <td>labeltag</td>
+      <td>Independent wraptag for label</td>
+      <td> <em>unset</em></td>
+    </tr>
+    <tr>
+      <td>break</td>
+      <td><span class="caps"><span class="caps">HTML</span></span> tag (without brackets), or string, used to separate the updates</td>
+      <td>li</td>
+    </tr>
+    <tr>
+      <td>wraptag</td>
+      <td><span class="caps"><span class="caps">HTML</span></span> tag to be used as the wraptag, without brackets</td>
+      <td> <em>unset</em></td>
+    </tr>
+    <tr>
+      <td>class</td>
+      <td><span class="caps"><span class="caps">CSS</span></span> class attribute for wraptag</td>
+      <td>arc_twitter_search</td>
+    </tr>
+    <tr>
+      <td>class_user</td>
+      <td><span class="caps"><span class="caps">CSS</span></span> class attribute applied to span tag around user name</td>
+      <td>arc_twitter-user</td>
+    </tr>
+    <tr>
+      <td>class_posted</td>
+      <td><span class="caps"><span class="caps">CSS</span></span> class attribute applied to span tag around posted date</td>
+      <td>arc_twitter-posted</td>
+    </tr>
+  </table>
 
-	<h3>Example usage</h3>
+  <h3>Example usage</h3>
 
-	<p>&lt;txp:arc_twitter_search search=&quot;plugin&quot; hashtags=&quot;txp,textpattern&quot; limit=&quot;25&quot; /&gt;</p>
+  <p>&lt;txp:arc_twitter_search search=&quot;plugin&quot; hashtags=&quot;txp,textpattern&quot; limit=&quot;25&quot; /&gt;</p>
 
-	<p>Produces a list of tweets containing the word &#8216;plugin&#8217; and the hashtags &#8216;#txp&#8217; and &#8216;#textpattern&#8217;. The tag will return a maximum of 25 tweets.</p>
+  <p>Produces a list of tweets containing the word &#8216;plugin&#8217; and the hashtags &#8216;#txp&#8217; and &#8216;#textpattern&#8217;. The tag will return a maximum of 25 tweets.</p>
 
-	<h2 class="section" id="arc_twitter_caching">Caching</h2>
+  <h2 class="section" id="arc_twitter_caching">Caching</h2>
 
-	<p>In order to prevent excessive repeatitive calls to the Twitter website it is recommended to cache results. Twitter limits the number of calls through the <span class="caps">API</span>, and continuous calls will result in Twitter closing to further requests. By default, arc_twitter caches for 30 minute intervals.</p>
+  <p>In order to prevent excessive repeatitive calls to the Twitter website it is recommended to cache results. Twitter limits the number of calls through the <span class="caps">API</span>, and continuous calls will result in Twitter closing to further requests. By default, arc_twitter caches for 30 minute intervals.</p>
 
-	<table>
-		<tr>
-			<th>Attribute</th>
-			<th>Description</th>
-			<th>Default</th>
-			<th>Example</th>
-		</tr>
-		<tr>
-			<td>caching</td>
-			<td>&#8216;1&#8217; to cache feed, &#8216;0&#8217; to turn caching off (not recommended)</td>
-			<td>1</td>
-			<td>caching=&quot;1&quot;</td>
-		</tr>
-		<tr>
-			<td>cache_dir</td>
-			<td>Absolute path to the cache directory (must be writable)</td>
-			<td> <em>arc_twitter preferences</em></td>
-		</tr>
-		<tr>
-			<td>cache_time</td>
-			<td>Time in minutes that the cache files are stored before being refreshed</td>
-			<td>5</td>
-			<td>cache_time=&quot;30&quot;</td>
-		</tr>
-	</table>
+  <table>
+    <tr>
+      <th>Attribute</th>
+      <th>Description</th>
+      <th>Default</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>caching</td>
+      <td>&#8216;1&#8217; to cache feed, &#8216;0&#8217; to turn caching off (not recommended)</td>
+      <td>1</td>
+      <td>caching=&quot;1&quot;</td>
+    </tr>
+    <tr>
+      <td>cache_dir</td>
+      <td>Absolute path to the cache directory (must be writable)</td>
+      <td> <em>arc_twitter preferences</em></td>
+    </tr>
+    <tr>
+      <td>cache_time</td>
+      <td>Time in minutes that the cache files are stored before being refreshed</td>
+      <td>5</td>
+      <td>cache_time=&quot;30&quot;</td>
+    </tr>
+  </table>
 
-	<p>The admin side of this plugin enforces caching, apart from when it is posting to Twitter (<i>e.g.</i> when posting or deleting an update).</p>
+  <p>The admin side of this plugin enforces caching, apart from when it is posting to Twitter (<i>e.g.</i> when posting or deleting an update).</p>
 
-	<h2 class="section" id="arc_twitter_prefs">Preferences</h2>
+  <h2 class="section" id="arc_twitter_prefs">Preferences</h2>
 
-	<p>You can access the plugins core preferences from either the Preferences or Plugins tabs in admin. Setup your Twitter account (you will be asked to connect via Twitter and this needs doing before you can use the plugin) and change the cache directory using arc_twitter&#8217;s preferences. Without providing your account login details the admin area features of this plugin will be inactive.</p>
+  <p>You can access the plugins core preferences from either the Preferences or Plugins tabs in admin. Setup your Twitter account (you will be asked to connect via Twitter and this needs doing before you can use the plugin) and change the cache directory using arc_twitter&#8217;s preferences. Without providing your account login details the admin area features of this plugin will be inactive.</p>
 
-	<p>You can select the <span class="caps">URL</span> shortener method you want to use to link back to your article on Twitter. Please note that if you select smd_short_url you will need to have installed and activated the <a href="http://textpattern.org/plugins/1099/smd_short_url"><span class="tag">smd_short_url</span> plugin</a> developed by Stef Dawson.</p>
+  <p>You can select the <span class="caps">URL</span> shortener method you want to use to link back to your article on Twitter. Please note that if you select smd_short_url you will need to have installed and activated the <a href="http://textpattern.org/plugins/1099/smd_short_url"><span class="tag">smd_short_url</span> plugin</a> developed by Stef Dawson.</p>
 
-	<h2 class="section" id="arc_twitter_article">Tweeting articles</h2>
+  <h2 class="section" id="arc_twitter_article">Tweeting articles</h2>
 
-	<p>By default arc_twitter will post an update to Twitter including a shortened <span class="caps">URL</span> to your article. Only live and active articles will be sent to Twitter, <i>i.e.</i> articles posted in the future or as sticky articles will not be sent. If your article is successfully submitted to Twitter the update will appear in place of the Twitter option on the right-hand-side of the article edit screen.</p>
+  <p>By default arc_twitter will post an update to Twitter including a shortened <span class="caps">URL</span> to your article. Only live and active articles will be sent to Twitter, <i>i.e.</i> articles posted in the future or as sticky articles will not be sent. If your article is successfully submitted to Twitter the update will appear in place of the Twitter option on the right-hand-side of the article edit screen.</p>
 
-	<p>Tweets are sent in the following format: <em>Tweet prefix</em> <em>Article title</em> <em>Shortened <span class="caps">URL</span></em> <em>Tweet suffix</em>. You can change the prefix and suffix on an article-by-article basis by changing the tweet options under &#8216;Update Twitter&#8217; on the article editor screen. The default <em>Tweet prefix</em> can be set under the <span class="tag">arc_twitter</span> preferences screen (the default on installation is &#8220;Just posted:&#8221;).</p>
+  <p>Tweets are sent in the following format: <em>Tweet prefix</em> <em>Article title</em> <em>Shortened <span class="caps">URL</span></em> <em>Tweet suffix</em>. You can change the prefix and suffix on an article-by-article basis by changing the tweet options under &#8216;Update Twitter&#8217; on the article editor screen. The default <em>Tweet prefix</em> can be set under the <span class="tag">arc_twitter</span> preferences screen (the default on installation is &#8220;Just posted:&#8221;).</p>
 
-	<p>Please note that once an article has been tweeted the tweet cannot be edited.</p>
+  <p>Please note that once an article has been tweeted the tweet cannot be edited.</p>
 
-	<h2 class="section" id="arc_twitter_admin">The Twitter tab</h2>
+  <h2 class="section" id="arc_twitter_admin">The Twitter tab</h2>
 
-	<p>Under the Extensions tab (this can be changed from the plugin&#8217;s preference page) a new Twitter tab should appear once you have connected your site to your Twitter account. From here you will be able to submit new Twitter updates, view basic account statistics, and check out your recent updates (including the option to delete your tweets).</p>
+  <p>Under the Extensions tab (this can be changed from the plugin&#8217;s preference page) a new Twitter tab should appear once you have connected your site to your Twitter account. From here you will be able to submit new Twitter updates, view basic account statistics, and check out your recent updates (including the option to delete your tweets).</p>
 # --- END PLUGIN HELP ---
 -->
 <?php
