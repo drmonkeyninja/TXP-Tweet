@@ -234,7 +234,10 @@ function arc_twitter_tweet($atts) {
           , 'arc_twitter', "article_id={$id}");
     }
     
-    if ($tweet['tweet']) return $tweet['tweet'];
+    if ($tweet['tweet']) {
+      return arc_Twitter::makeLinks(
+        htmlentities($tweet['tweet'], ENT_QUOTES,'UTF-8'));
+    }
 }
 
 function arc_twitter_tweet_url($atts, $thing=null) {
