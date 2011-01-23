@@ -126,7 +126,7 @@ function arc_twitter($atts)
     $tweets = @$xml->xpath('/statuses/status');
     if ($tweets) foreach ($tweets as $tweet) {
       $time = strtotime(htmlentities($tweet->created_at));
-      $date = strftime($dateformat,$time);
+      $date = safe_strftime($dateformat,$time);
       $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
         .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
     }
@@ -206,7 +206,7 @@ function arc_twitter_search($atts)
             preg_match("/(.*) \((.*)\)/",$tweet->author->name,$matches);
             list($author,$uname,$name) = $matches;
             $time = strtotime(htmlentities($tweet->published));
-            $date = strftime($dateformat,$time);
+            $date = safe_strftime($dateformat,$time);
             $text = $tweet->title;
             $out[] = tag(href(htmlentities($uname),$tweet->author->uri,
                 ' title="'.htmlentities($name).'"').': ','span'
@@ -644,7 +644,7 @@ function arc_admin_twitter($event,$step)
     $tweets = @$xml->xpath('/statuses/status');
     if ($tweets) foreach ($tweets as $tweet) {
         $time = strtotime(htmlentities($tweet->created_at));
-        $date = strftime($prefs['archive_dateformat'],$time);
+        $date = safe_strftime($prefs['archive_dateformat'],$time);
         $out.= tr(td($date,'span')
             .td(arc_Twitter::makeLinks(htmlentities($tweet->text
                 , ENT_QUOTES,'UTF-8')))
