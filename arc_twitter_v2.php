@@ -224,12 +224,12 @@ function arc_twitter_tweet($atts) {
 
     extract(lAtts(array(
       'id'        => $thisarticle['thisid'],
-      'inc_url'   => true
+      'include_url'   => true
     ),$atts));
 
     if ($id) {
       // Fetch arc_twitter stuff to build tweet from
-      $tweet = ($inc_url) ? safe_row("tweet", 'arc_twitter', "article_id={$id}")
+      $tweet = ($include_url) ? safe_row("tweet", 'arc_twitter', "article_id={$id}")
         : safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet"
           , 'arc_twitter', "article_id={$id}");
     }
