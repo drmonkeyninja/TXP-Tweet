@@ -1,0 +1,129 @@
+h1(title). TXP Tweet (arc_twitter for Textpattern)
+
+# "Author":#arc_twitter_author
+# "Installation / Uninstallation":#arc_twitter_installation
+# "The arc_twitter tag":#arc_twitter_tag
+# "The arc_twitter_search tag":#arc_twitter_search_tag
+# "Caching":#arc_twitter_caching
+# "Preferences":#arc_twitter_prefs
+# "Tweeting articles":#arc_twitter_article
+# "The Twitter tab":#arc_twitter_admin
+
+TXP Tweet provides access to your Twitter account through both the admin interface and the public side of your site. Update Twitter when you post a new article (with article-by-article opt out option), update and view your Twitter feed through the admin Twitter tab, and display Twitter feeds on your site.
+
+Requirements:-
+
+* Textpattern 4.2+
+* PHP 5 and cURL
+
+h2(section#arc_twitter_author). Author
+
+"Andy Carter":http://www.redhotchilliproject.com. For other Textpattern plugins by me, or to make a donation, visit my "Plugins page":http://www.redhotchilliproject.com/txp-plugins.
+
+Thanks to "Michael Manfre":http://manfre.net/ for inspiration for the article tweet part of this plugin based on his %(tag)mem_twitter% plugin.  Additional thanks to the great Textpattern community for helping to test this plugin and for suggesting new features. The OAuth part of the plugin is thanks to "Abraham Williams":http://twitter.com/abraham.
+
+
+h2(section#arc_twitter_installation). Installation / Uninstallation
+
+To install go to the 'plugins' tab under 'admin' and paste the plugin code into the 'Install plugin' box, 'upload' and then 'install'. Finally activate the plugin. 
+
+Before you start using %(tag)arc_twitter% you will need to make sure that the cache directory is writable. See the 'Caching' subsection below for further information.
+
+%(tag)arc_twitter% should now be ready for use on the public-side of your site.
+
+To unlock the admin features of this plugin you will need to associate your site with a Twitter account by connecting to Twitter from the plugin's options screen. Click on the link to connect to Twitter, you will be asked to login to Twitter, clicking this link will temporarily take you to the Twitter site where you will be asked to login and approve access for TXP Tweet to read and write to your Twitter account. If all is successful you will be returned to the options screen and your user name will appear.
+
+At any time you can disassociate your Twitter account with TXP Tweet via your Twitter account preferences on the "Twitter website":http://www.twitter.com.
+
+To uninstall %(tag)arc_twitter% simply delete the plugin from the 'Plugins' tab.  This will remove the plugin code, delete related preferences and drop the %(tag)arc_twitter% table from your Textpattern database.
+
+
+h2(section#arc_twitter_tag). The arc_twitter tag
+
+h3. Syntax
+
+&lt;txp:arc_twitter user=&quot;drmonkeyninja&quot; /&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|user|Twitter user name| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|limit|Maximum number of tweets to display (max. 200)|10|limit=&quot;25&quot;|
+|dateformat|Format that update dates will appear as| _Archive date format_|dateformat=&quot;%b %Oe, %I:%M %p&quot;|
+|label|Label for the top of the list| _no label_|label=&quot;My Twitter timeline&quot;|
+|labeltag|Independent wraptag for label| _unset_|labeltag=&quot;h3&quot;|
+|break|HTML tag (without brackets), or string, used to separate the updates|li|break=&quot;br&quot;|
+|wraptag|HTML tag to be used as the wraptag, without brackets| _unset_|wraptag=&quot;ul&quot;|
+|class|CSS class attribute for wraptag|arc_twitter|class=&quot;twitter&quot;|
+|class_posted|CSS class attribute applied to span tag around posted date|arc_twitter-posted| |
+
+
+h3. Example usage
+
+&lt;txp:arc_twitter user=&quot;drmonkeyninja&quot; limit=&quot;5&quot; wraptag=&quot;ul&quot; break=&quot;li&quot; dateformat=&quot;%b %Oe, %I:%M %p&quot; /&gt;
+
+Produces a bullet point list of the last 5 Twitter updates from drmonkeyninja's Twitter feed with a defined date format to override the default archive date format.
+
+
+h2(section#arc_twitter_search_tag). The arc_twitter_search tag
+
+h3. Syntax
+
+&lt;txp:arc_twitter_search hashtags=&quot;txp&quot; /&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|search|Comma separated list of search words| _unset_|search=&quot;txp,textpattern&quot;|
+|hashtags|Comma separated list of hashtags to search for (not including the hash)| _unset_|hashtags=&quot;txp,textpattern&quot;|
+|reply|Username of tweets in reply to| _unset_|reply=&quot;twitter&quot;|
+|mention|Username of user mentioned in tweets (__i.e.__ tweets containing @username)| _unset_|mention=&quot;twitter&quot;|
+|limit|Maximum number of tweets to display (max. 200)|10|limit=&quot;25&quot;|
+|dateformat|Format that update dates will appear as| _Archive date format_|dateformat=&quot;%b %Oe, %I:%M %p&quot;|
+|label|Label for the top of the list| _no label_| |
+|labeltag|Independent wraptag for label| _unset_| |
+|break|HTML tag (without brackets), or string, used to separate the updates|li| |
+|wraptag|HTML tag to be used as the wraptag, without brackets| _unset_| |
+|class|CSS class attribute for wraptag|arc_twitter_search| |
+|class_user|CSS class attribute applied to span tag around user name|arc_twitter-user| |
+|class_posted|CSS class attribute applied to span tag around posted date|arc_twitter-posted| |
+
+h3. Example usage
+
+&lt;txp:arc_twitter_search search=&quot;plugin&quot; hashtags=&quot;txp,textpattern&quot; limit=&quot;25&quot; /&gt;
+
+Produces a list of tweets containing the word 'plugin' and the hashtags '#txp' and '#textpattern'. The tag will return a maximum of 25 tweets.
+
+
+h2(section#arc_twitter_caching). Caching
+
+In order to prevent excessive repeatitive calls to the Twitter website it is recommended to cache results. Twitter limits the number of calls through the API, and continuous calls will result in Twitter closing to further requests. By default, arc_twitter caches for 30 minute intervals.
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|caching|'1' to cache feed, '0' to turn caching off (not recommended)|1|caching=&quot;1&quot;|
+|cache_dir|Absolute path to the cache directory (must be writable)| _arc_twitter preferences_| |
+|cache_time|Time in minutes that the cache files are stored before being refreshed|5|cache_time=&quot;30&quot;|
+
+
+The admin side of this plugin enforces caching, apart from when it is posting to Twitter (__e.g.__ when posting or deleting an update).
+
+
+h2(section#arc_twitter_prefs). Preferences
+
+You can access the plugins core preferences from either the Preferences or Plugins tabs in admin. Setup your Twitter account (you will be asked to connect via Twitter and this needs doing before you can use the plugin) and change the cache directory using arc_twitter's preferences. Without providing your account login details the admin area features of this plugin will be inactive.
+
+You can select the URL shortener method you want to use to link back to your article on Twitter. Please note that if you select smd_short_url you will need to have installed and activated the "%(tag)smd_short_url% plugin":http://textpattern.org/plugins/1099/smd_short_url developed by Stef Dawson.
+
+
+h2(section#arc_twitter_article). Tweeting articles
+
+By default arc_twitter will post an update to Twitter including a shortened URL to your article. Only live and active articles will be sent to Twitter, __i.e.__ articles posted in the future or as sticky articles will not be sent. If your article is successfully submitted to Twitter the update will appear in place of the Twitter option on the right-hand-side of the article edit screen.
+
+Tweets are sent in the following format: [_Tweet prefix_] [_Article title_] [_Shortened URL_] [_Tweet suffix_]. You can change the prefix and suffix on an article-by-article basis by changing the tweet options under 'Update Twitter' on the article editor screen. The default _Tweet prefix_ can be set under the %(tag)arc_twitter% preferences screen (the default on installation is "Just posted:").
+
+Please note that once an article has been tweeted the tweet cannot be edited.
+
+
+h2(section#arc_twitter_admin). The Twitter tab
+
+Under the Extensions tab (this can be changed from the plugin's preference page) a new Twitter tab should appear once you have connected your site to your Twitter account. From here you will be able to submit new Twitter updates, view basic account statistics, and check out your recent updates (including the option to delete your tweets).
