@@ -95,6 +95,27 @@ h3. Example usage
 Produces a list of tweets containing the word 'plugin' and the hashtags '#txp' and '#textpattern'. The tag will return a maximum of 25 tweets.
 
 
+h2(section#arc_twitter_retweet_tag). The arc_twitter_retweet tag
+
+h3. Syntax
+
+&lt;txp:arc_twitter_retweet /&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|user|Twitter user name to quote| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|url|URL to retweet| | |
+|text|Retweet text| | |
+|follow1||A Twitter user to recommend|follow1=&quot;Textpattern&quot;|
+|follow2|As follow1| _unset_| |
+|lang|Language|en|lang=&quot;es&quot;|
+|count| |horizontal|count=&quot;none&quot;|
+|include_js|Whether or not to include the JavaScript|1|include_js=&quot;0&quot;|
+|wraptag|HTML tag to be used as the wraptag, without brackets| _unset_| |
+|class|CSS class attribute applied to the retweet button|twitter-share-button| |
+
+
 h2(section#arc_twitter_caching). Caching
 
 In order to prevent excessive repeatitive calls to the Twitter website it is recommended to cache results. Twitter limits the number of calls through the API, and continuous calls will result in Twitter closing to further requests. By default, arc_twitter caches for 30 minute intervals.
