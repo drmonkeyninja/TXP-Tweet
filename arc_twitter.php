@@ -734,6 +734,9 @@ function arc_article_tweet($event,$step)
 
         if ($article && gps('arc_tweet_this')) { // tweet article
 
+            // Need to manually update the 'URL only title' before building the 
+            // URL
+            $article['url_title'] = gps('url_title');
             // Make short URL
             $url = permlinkurl($article);
             $short_url = arc_shorten_url($url,$prefs['arc_twitter_url_method'],
