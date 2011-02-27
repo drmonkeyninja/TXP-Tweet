@@ -4,6 +4,9 @@ h1(title). TXP Tweet (arc_twitter for Textpattern)
 # "Installation / Uninstallation":#arc_twitter_installation
 # "The arc_twitter tag":#arc_twitter_tag
 # "The arc_twitter_search tag":#arc_twitter_search_tag
+# "The arc_twitter_retweet tag":#arc_twitter_retweet_tag
+# "The arc_twitter_tweet_url tag":#arc_twitter_tweet_url
+# "The arc_twitter_tinyurl tag":#arc_twitter_tinyurl
 # "Caching":#arc_twitter_caching
 # "Preferences":#arc_twitter_prefs
 # "Tweeting articles":#arc_twitter_article
