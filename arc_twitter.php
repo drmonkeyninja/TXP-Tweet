@@ -1,6 +1,6 @@
 <?php
 
-$plugin['name'] = 'TXP Tweet';
+$plugin['name'] = 'arc_twitter';
 $plugin['version'] = '2.0beta';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
