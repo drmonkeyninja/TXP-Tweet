@@ -107,13 +107,49 @@ h3. Usage
 |user|Twitter user name to quote| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
 |url|URL to retweet| | |
 |text|Retweet text| | |
-|follow1||A Twitter user to recommend|follow1=&quot;Textpattern&quot;|
+|follow1|Suggested Twitter account to follow, for example your own|A Twitter user to recommend|follow1=&quot;Textpattern&quot;|
 |follow2|As follow1| _unset_| |
 |lang|Language|en|lang=&quot;es&quot;|
-|count| |horizontal|count=&quot;none&quot;|
+|count|Count box position, options: none, horizontal or vertical|horizontal|count=&quot;none&quot;|
 |include_js|Whether or not to include the JavaScript|1|include_js=&quot;0&quot;|
 |wraptag|HTML tag to be used as the wraptag, without brackets| _unset_| |
 |class|CSS class attribute applied to the retweet button|twitter-share-button| |
+
+
+h2(section#arc_twitter_tweet_url). arc_twitter_tweet_url
+
+Returns the URL of the Twitter status for an article.
+
+h3. Syntax
+
+&lt;txp:arc_twitter_tweet_url /&gt;
+
+&lt;txp:arc_twitter_tweet_url&gt;Link text&lt;/txp:arc_twitter_tweet_url&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|id|Textpattern article ID| _current article_|id=&quot;1&quot;|
+|title|Title attribute of the link| _unset_| |
+|class|CSS class attribute applied to the link| _unset_| |
+
+
+h2(section#arc_twitter_tinyurl). arc_twitter_tinyurl
+
+Returns the shortened URL of the article used for the Twitter update.
+
+h3. Syntax
+
+&lt;txp:arc_twitter_tinyurl /&gt;
+
+&lt;txp:arc_twitter_tinyurl&gt;Link text&lt;/txp:arc_twitter_tinyurl&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|id|Textpattern article ID| _current article_|id=&quot;1&quot;|
+|title|Title attribute of the link| _unset_| |
+|class|CSS class attribute applied to the link| _unset_| |
 
 
 h2(section#arc_twitter_caching). Caching
