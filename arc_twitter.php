@@ -1,9 +1,9 @@
 <?php
 
-$plugin['name'] = 'arc_twitter';
-$plugin['version'] = '2.0alpha-01';
+$plugin['name'] = 'TXP Tweet';
+$plugin['version'] = '2.0beta';
 $plugin['author'] = 'Andy Carter';
-$plugin['author_uri'] = 'http://www.redhotchilliproject.com/';
+$plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
 $plugin['order'] = '5';
 
