@@ -22,8 +22,7 @@ if (!defined('PLUGIN_LIFECYCLE_NOTIFY')) define('PLUGIN_LIFECYCLE_NOTIFY', 0x000
 
 $plugin['flags'] = '3';
 
-if (!defined('txpinterface'))
-        @include_once('zem_tpl.php');
+@include_once('zem_tpl.php');
 
 # --- BEGIN PLUGIN CODE ---
 global $prefs,$txpcfg,$arc_twitter_consumerKey,$arc_twitter_consumerSecret;
@@ -703,12 +702,12 @@ function arc_append_twitter($event, $step, $data, $rs1)
         return $data.fieldset($content, 'Twitter update', 'arc_twitter');
     } else {
         $var = ($rs1['ID']) ? 0 : $prefs['arc_twitter_tweet_default'];
-        $content  = yesnoRadio('arc_tweet_this', $var, '', 'arc_tweet_this');
+        $content  = tag(yesnoRadio('arc_tweet_this', $var, '', 'arc_tweet_this'),'p');
         $content .= tag(href('Options','#arc_twitter_options'),'p',' class="plain lever" style="margin-top:5px;"');
-        $content .= tag(tag('Tweet prefix','label', ' for="arc_twitter_prefix"')
-            .fInput('text','arc_twitter_prefix',$prefix,'edit','','','22','','arc_twitter_prefix')
-            .tag('Tweet suffix (eg #hashtags)','label', ' for="arc_twitter_suffix"')
-            .fInput('text','arc_twitter_suffix',$suffix,'edit','','','22','','arc_twitter_suffix')
+        $content .= tag(tag(tag('Tweet prefix','label', ' for="arc_twitter_prefix"')
+            .fInput('text','arc_twitter_prefix',$prefix,'edit','','','22','','arc_twitter_prefix'),'p')
+            .tag(tag('Tweet suffix (eg #hashtags)','label', ' for="arc_twitter_suffix"')
+            .fInput('text','arc_twitter_suffix',$suffix,'edit','','','22','','arc_twitter_suffix'),'p')
             ,'div',' id="arc_twitter_options" class="toggle" style="display:none"');
         if (isset($arc_twitter['error'])) {
             $content .= '<p>'.$arc_twitter['error'].'</p>';
@@ -2078,6 +2077,7 @@ if (0) {
 ?>
 <!--
 # --- BEGIN PLUGIN HELP ---
+
 h1(title). TXP Tweet (arc_twitter for Textpattern)
 
 # "Author":#arc_twitter_author
@@ -2276,6 +2276,7 @@ Please note that once an article has been tweeted the tweet cannot be edited.
 h2(section#arc_twitter_admin). The Twitter tab
 
 Under the Extensions tab (this can be changed from the plugin's preference page) a new Twitter tab should appear once you have connected your site to your Twitter account. From here you will be able to submit new Twitter updates, view basic account statistics, and check out your recent updates (including the option to delete your tweets).
+
 # --- END PLUGIN HELP ---
 -->
 <?php
