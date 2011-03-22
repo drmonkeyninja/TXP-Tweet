@@ -36,6 +36,7 @@ add_privs('plugin_prefs.arc_twitter','1,2');
 register_callback('arc_twitter_install','plugin_lifecycle.arc_twitter', 'installed');
 register_callback('arc_twitter_uninstall','plugin_lifecycle.arc_twitter', 'deleted');
 register_callback('arc_twitter_prefs','plugin_prefs.arc_twitter');
+register_callback('arc_short_url_redirect', 'txp_die', 404);
 
 
 if (!isset($prefs['arc_twitter_user']))
@@ -49,6 +50,8 @@ if (!isset($prefs['arc_twitter_tweet_default']))
 if (!isset($prefs['arc_twitter_url_method']))
   set_pref('arc_twitter_url_method', 'tinyurl', 'arc_twitter', 2,
     'arc_twitter_url_method_select');
+if (!isset($prefs['arc_short_site_url']))
+  set_pref('arc_short_site_url', $prefs['site_url'], 'arc_twitter', 2, 'text_input');
 // Make sure that the Twitter tab has been defined
 if (!isset($prefs['arc_twitter_tab'])) {
   set_pref('arc_twitter_tab', 'extensions', 'arc_twitter', 2,
@@ -420,6 +423,7 @@ function arc_twitter_prefs($event,$step)
     $prefix        = $prefs['arc_twitter_prefix'];
     $tweet_default = $prefs['arc_twitter_tweet_default'];
     $url_method    = $prefs['arc_twitter_url_method'];
+    $short_site_url    = $prefs['arc_short_site_url'];
     $cache_dir     = $prefs['arc_twitter_cache_dir'];
     $tab           = $prefs['arc_twitter_tab'];
 
@@ -487,6 +491,7 @@ function arc_twitter_prefs($event,$step)
         $tweet_default = ($tweet_default) ? 1 : 0;
         set_pref('arc_twitter_tweet_default',$tweet_default);
         set_pref('arc_twitter_url_method',$url_method);
+        set_pref('arc_short_site_url',$short_site_url);
         set_pref('arc_twitter_cache_dir',$cache_dir);
         set_pref('arc_twitter_tab',$tab);
     }
@@ -526,6 +531,10 @@ function arc_twitter_prefs($event,$step)
                     tda('<label for="arc_twitter_url_method">URL shortner</label>',
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(arc_twitter_url_method_select('arc_twitter_url_method',$url_method))
+                ).tr(
+                    tda('<label for="arc_short_site_url">Site URL for TXP Tweet URL shortner</label>',
+                        ' style="text-align: right; vertical-align: middle;"')
+                    .td(fInput('text','arc_short_site_url',$short_site_url,'','','','','','arc_short_site_url'))
                 ).tr(
                     tdcs(hed('Twitter tab', 2),2)
                 ).tr(
@@ -840,6 +849,36 @@ function arc_shorten_url($url, $method='', $atts=array())
 
   return false; // fail
 
+}
+
+/*
+ * Shortened URL redirect based on smd_short_url
+ */
+function arc_short_url_redirect($event, $step) {
+  $urlparts = parse_url(hu);
+
+	$re = '#^'.$urlparts['path'].'([0-9].*)#';
+
+	$have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+
+	if ($have_id) {
+		$id = $m[1];
+		$permlink = permlinkurl_id($id);
+
+		if ($permlink) {
+			ob_end_clean();
+
+			// Stupid, over the top header setting for IE
+			header("Status: 301");
+			header("HTTP/1.0 301 Moved Permanently");
+			header("Location: ".$permlink, TRUE, 301);
+
+			// In case the header() method fails, fall back on a classic redirect
+			echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
+			  .$permlink.'"></head><body></body></html>';
+			die();
+		}
+	}
 }
 
 /*
@@ -2102,15 +2141,6 @@ Requirements:-
 h2(section#arc_twitter_author). Author
 
 "Andy Carter":http://redhotchilliproject.com. For other Textpattern plugins by me visit my "Plugins page":http://redhotchilliproject.com/txp.
-
-If you like this plugin and want to see development work continue you could consider sending me a small incentive:-
-
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="DFYCRUWREW3UY">
-<input type="image" src="https://www.paypal.com/en_GB/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online.">
-<img alt="" border="0" src="https://www.paypal.com/en_GB/i/scr/pixel.gif" width="1" height="1">
-</form>
 
 Thanks to "Michael Manfre":http://manfre.net/ for inspiration for the article tweet part of this plugin based on his %(tag)mem_twitter% plugin.  Additional thanks to the great Textpattern community for helping to test this plugin and for suggesting new features. The OAuth part of the plugin is thanks to "Abraham Williams":http://twitter.com/abraham.
 
