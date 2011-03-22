@@ -855,12 +855,27 @@ function arc_shorten_url($url, $method='', $atts=array())
  * Shortened URL redirect based on smd_short_url
  */
 function arc_short_url_redirect($event, $step) {
-  $urlparts = parse_url(hu);
+  global $prefs;
+  
+  $have_id = 0;
+  
+  // Check if there is an available short site url and if it is being used in
+  // this instance
+  $short_site_url = $prefs['arc_short_site_url'];  
+  if ($short_site_url) {
+    $url_parts = parse_url($short_site_url);
+    $re = '#^'.$url_parts['path'].'([0-9].*)#';
+    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+  }
+  
+  // Fall back to standard site url (smd_short_url behaviour)
+  if ($have_id) {
+    $url_parts = parse_url(hu);
+    $re = '#^'.$url_parts['path'].'([0-9].*)#';
+    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+  }
 
-	$re = '#^'.$urlparts['path'].'([0-9].*)#';
-
-	$have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
-
+  // Do the redirect if we've got an article id
 	if ($have_id) {
 		$id = $m[1];
 		$permlink = permlinkurl_id($id);
