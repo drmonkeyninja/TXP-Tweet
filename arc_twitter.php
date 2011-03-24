@@ -883,43 +883,49 @@ function arc_shorten_url($url, $method='', $atts=array())
 function arc_short_url_redirect($event, $step) {
   global $prefs;
   
-  $have_id = 0;
+  // Only use redirect if enabled
+  if ($prefs['arc_short_url']) {
   
-  // Check if there is an available short site url and if it is being used in
-  // this instance
-  $short_site_url = $prefs['arc_short_site_url'];  
-  if ($short_site_url) {
-    $url_parts = parse_url($short_site_url);
-    $re = '#^'.$url_parts['path'].'([0-9].*)#';
-    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+    $have_id = 0;
+    
+    // Check if there is an available short site url and if it is being used in
+    // this instance
+    $short_site_url = $prefs['arc_short_site_url'];  
+    if ($short_site_url) {
+      $url_parts = parse_url($short_site_url);
+      $re = '#^'.$url_parts['path'].'([0-9].*)#';
+      $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+    }
+    
+    // Fall back to standard site url (smd_short_url behaviour)
+    if ($have_id) {
+      $url_parts = parse_url(hu);
+      $re = '#^'.$url_parts['path'].'([0-9].*)#';
+      $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+    }
+
+    // Do the redirect if we've got an article id
+	  if ($have_id) {
+		  $id = $m[1];
+		  $permlink = permlinkurl_id($id);
+
+		  if ($permlink) {
+			  ob_end_clean();
+
+			  // Stupid, over the top header setting for IE
+			  header("Status: 301");
+			  header("HTTP/1.0 301 Moved Permanently");
+			  header("Location: ".$permlink, TRUE, 301);
+
+			  // In case the header() method fails, fall back on a classic redirect
+			  echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
+			    .$permlink.'"></head><body></body></html>';
+			  die();
+		  }
+	  }
+  
   }
   
-  // Fall back to standard site url (smd_short_url behaviour)
-  if ($have_id) {
-    $url_parts = parse_url(hu);
-    $re = '#^'.$url_parts['path'].'([0-9].*)#';
-    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
-  }
-
-  // Do the redirect if we've got an article id
-	if ($have_id) {
-		$id = $m[1];
-		$permlink = permlinkurl_id($id);
-
-		if ($permlink) {
-			ob_end_clean();
-
-			// Stupid, over the top header setting for IE
-			header("Status: 301");
-			header("HTTP/1.0 301 Moved Permanently");
-			header("Location: ".$permlink, TRUE, 301);
-
-			// In case the header() method fails, fall back on a classic redirect
-			echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
-			  .$permlink.'"></head><body></body></html>';
-			die();
-		}
-	}
 }
 
 /*
