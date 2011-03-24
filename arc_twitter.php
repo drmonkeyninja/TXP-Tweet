@@ -403,7 +403,10 @@ function arc_twitter_uninstall()
 }
 function arc_twitter_url_method_select($name, $val)
 {
-    $methods = array('tinyurl' => 'Tinyurl', 'isgd' => 'Is.gd', 'smd' => 'smd_short_url');
+    $methods = array('tinyurl' => 'Tinyurl', 
+      'isgd' => 'Is.gd',
+      'arc_twitter' => 'arc_twitter',
+      'smd' => 'smd_short_url');
     return selectInput($name, $methods, $val);
 }
 function arc_twitter_tab_select($name, $val)
@@ -812,6 +815,8 @@ function arc_article_tweet($event,$step)
 
 function arc_shorten_url($url, $method='', $atts=array())
 {
+  global $prefs;
+
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_HEADER, 0);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -820,6 +825,11 @@ function arc_shorten_url($url, $method='', $atts=array())
   switch ($method) {
     case 'smd': // create a shortened URL using SMD Short URL
       return ($atts['id']) ? hu.$atts['id'] : false; break;
+    case 'arc_twitter': // native URL shortening
+    
+      return ($atts['id']) ? $prefs['arc_short_site_url'].$atts['id'] : false;
+      break;
+      
     case 'isgd':
 
       $u = 'http://is.gd/api.php?longurl='.urlencode($url);
