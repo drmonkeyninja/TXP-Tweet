@@ -50,6 +50,8 @@ if (!isset($prefs['arc_twitter_tweet_default']))
 if (!isset($prefs['arc_twitter_url_method']))
   set_pref('arc_twitter_url_method', 'tinyurl', 'arc_twitter', 2,
     'arc_twitter_url_method_select');
+if (!isset($prefs['arc_short_url']))
+  set_pref('arc_short_url', 0, 'arc_twitter', 2, 'yesnoRadio');
 if (!isset($prefs['arc_short_site_url']))
   set_pref('arc_short_site_url', $prefs['site_url'], 'arc_twitter', 2, 'text_input');
 // Make sure that the Twitter tab has been defined
@@ -426,7 +428,8 @@ function arc_twitter_prefs($event,$step)
     $prefix        = $prefs['arc_twitter_prefix'];
     $tweet_default = $prefs['arc_twitter_tweet_default'];
     $url_method    = $prefs['arc_twitter_url_method'];
-    $short_site_url    = $prefs['arc_short_site_url'];
+    $short_url     = $prefs['arc_short_url'];
+    $short_site_url= $prefs['arc_short_site_url'];
     $cache_dir     = $prefs['arc_twitter_cache_dir'];
     $tab           = $prefs['arc_twitter_tab'];
 
@@ -484,6 +487,8 @@ function arc_twitter_prefs($event,$step)
         $prefix = trim(gps('arc_twitter_prefix'));
         $tweet_default = gps('arc_twitter_tweet_default');
         $url_method = gps('arc_twitter_url_method');
+        $short_url = gps('arc_short_url');
+        $short_site_url = gps('arc_short_site_url');
         $cache_dir = gps('arc_twitter_cache_dir');
         $tab = gps('arc_twitter_tab');
         if (strlen($prefix)<=20) {
@@ -493,6 +498,7 @@ function arc_twitter_prefs($event,$step)
         }
         $tweet_default = ($tweet_default) ? 1 : 0;
         set_pref('arc_twitter_tweet_default',$tweet_default);
+        set_pref('arc_short_url',$short_url);
         set_pref('arc_twitter_url_method',$url_method);
         set_pref('arc_short_site_url',$short_site_url);
         set_pref('arc_twitter_cache_dir',$cache_dir);
@@ -531,13 +537,19 @@ function arc_twitter_prefs($event,$step)
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(yesnoRadio('arc_twitter_tweet_default', $tweet_default, '', 'arc_twitter_tweet_default'))
                 ).tr(
+                    tda('<label for="arc_short_url_method">Enable TXP Tweet short URL redirect</label>',
+                        ' style="text-align: right; vertical-align: middle;"')
+                    .td(yesnoRadio('arc_short_url', $short_url, '', 'arc_short_url')),
+                    ' id="arc_short_url-on_off"'
+                ).tr(
                     tda('<label for="arc_twitter_url_method">URL shortner</label>',
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(arc_twitter_url_method_select('arc_twitter_url_method',$url_method))
                 ).tr(
-                    tda('<label for="arc_short_site_url">Site URL for TXP Tweet URL shortner</label>',
+                    tda('<label for="arc_short_site_url">TXP Tweet short site URL</label>',
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(fInput('text','arc_short_site_url',$short_site_url,'','','','','','arc_short_site_url'))
+                    ' id="arc_short_site_url-option"'
                 ).tr(
                     tdcs(hed('Twitter tab', 2),2)
                 ).tr(
@@ -575,6 +587,10 @@ function arc_twitter_prefs($event,$step)
                 .endTable();
         }
     }
+
+//@TODO hide arc_short_url on/off row when being used for tweets
+//@TODO hide arc_short_site_url field when arc_short_url is not being used
+    $js = "";
 
     echo $html;
 }
