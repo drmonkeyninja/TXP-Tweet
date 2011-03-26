@@ -1,17 +1,11 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '2.0beta';
+$plugin['version'] = '3.0-dev';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
 $plugin['order'] = '5';
-
-// Plugin 'type' defines where the plugin is loaded
-// 0 = public       : only on the public side of the website (default)
-// 1 = public+admin : on both the public and admin side
-// 2 = library      : only when include_plugin() or require_plugin() is called
-// 3 = admin        : only on the admin side
 $plugin['type'] = '1';
 
 // Plugin "flags" signal the presence of optional capabilities to the core plugin loader.
@@ -53,7 +47,7 @@ if (!isset($prefs['arc_twitter_url_method']))
 if (!isset($prefs['arc_short_url']))
   set_pref('arc_short_url', 0, 'arc_twitter', 2, 'yesnoRadio');
 if (!isset($prefs['arc_short_site_url']))
-  set_pref('arc_short_site_url', $prefs['site_url'], 'arc_twitter', 2, 'text_input');
+  set_pref('arc_short_site_url', $prefs['siteurl'], 'arc_twitter', 2, 'text_input');
 // Make sure that the Twitter tab has been defined
 if (!isset($prefs['arc_twitter_tab'])) {
   set_pref('arc_twitter_tab', 'extensions', 'arc_twitter', 2,
@@ -407,7 +401,7 @@ function arc_twitter_url_method_select($name, $val)
 {
     $methods = array('tinyurl' => 'Tinyurl', 
       'isgd' => 'Is.gd',
-      'arc_twitter' => 'arc_twitter',
+      'arc_twitter' => 'TXP Tweet',
       'smd' => 'smd_short_url');
     return selectInput($name, $methods, $val);
 }
@@ -537,18 +531,21 @@ function arc_twitter_prefs($event,$step)
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(yesnoRadio('arc_twitter_tweet_default', $tweet_default, '', 'arc_twitter_tweet_default'))
                 ).tr(
+                    tda('<label for="arc_twitter_url_method">URL shortner</label>',
+                        ' style="text-align: right; vertical-align: middle;"')
+                    .td(arc_twitter_url_method_select('arc_twitter_url_method',$url_method))
+                ).tr(
+                    tdcs(hed('TXP Tweet short URL', 2),2)
+                )
+                .tr(
                     tda('<label for="arc_short_url_method">Enable TXP Tweet short URL redirect</label>',
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(yesnoRadio('arc_short_url', $short_url, '', 'arc_short_url')),
                     ' id="arc_short_url-on_off"'
                 ).tr(
-                    tda('<label for="arc_twitter_url_method">URL shortner</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(arc_twitter_url_method_select('arc_twitter_url_method',$url_method))
-                ).tr(
                     tda('<label for="arc_short_site_url">TXP Tweet short site URL</label>',
                         ' style="text-align: right; vertical-align: middle;"')
-                    .td(fInput('text','arc_short_site_url',$short_site_url,'','','','','','arc_short_site_url'))
+                    .td(fInput('text','arc_short_site_url',$short_site_url,'','','','','','arc_short_site_url')),
                     ' id="arc_short_site_url-option"'
                 ).tr(
                     tdcs(hed('Twitter tab', 2),2)
@@ -588,11 +585,41 @@ function arc_twitter_prefs($event,$step)
         }
     }
 
-//@TODO hide arc_short_url on/off row when being used for tweets
-//@TODO hide arc_short_site_url field when arc_short_url is not being used
-    $js = "";
+    // Set jQuery for switching on/off relevant arc_short_url fields
+    $js = <<<JS
+<script language="javascript" type="text/javascript">
+$(document).ready(function(){
+  var onoff = $('#arc_short_url-on_off');
+  var arc_short_url_off = $('#arc_short_url-arc_short_url-0');
+  var url = $('#arc_short_site_url-option');
+  var url_method = $('select[name="arc_twitter_url_method"]');
+  
+  if (arc_short_url_off.attr('checked')==true
+  && $('option:selected', url_method).val()!='arc_twitter') {
+    url.hide();
+  }
+  $('input', onoff).change(function(){
+    if ($('option:selected', url_method).val()!='arc_twitter') {
+      arc_short_url_off.attr('checked')==true ? url.hide() : url.show();
+    }
+  });
+  
+  if ($('option:selected', url_method).val()=='arc_twitter') {
+    onoff.hide(); url.show();
+  }
+  url_method.change(function(){
+    if ($('option:selected', url_method).val()=='arc_twitter') {
+      onoff.toggle(); url.show();
+    } else {
+      onoff.toggle();
+      arc_short_url_off.attr('checked')==true ? url.hide() : url.show();
+    }
+  })
+});
+</script>
+JS;
 
-    echo $html;
+    echo $js.$html;
 }
 
 // Add Twitter tab to Textpattern
