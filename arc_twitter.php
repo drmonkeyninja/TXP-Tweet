@@ -30,9 +30,10 @@ add_privs('plugin_prefs.arc_twitter','1,2');
 register_callback('arc_twitter_install','plugin_lifecycle.arc_twitter', 'installed');
 register_callback('arc_twitter_uninstall','plugin_lifecycle.arc_twitter', 'deleted');
 register_callback('arc_twitter_prefs','plugin_prefs.arc_twitter');
-register_callback('arc_short_url_redirect', 'txp_die', 404);
 
-
+/*
+ * Setup initial preferences if not in the txp_prefs table.
+ */
 if (!isset($prefs['arc_twitter_user']))
     set_pref('arc_twitter_user', '', 'arc_twitter', 1, 'text_input');
 if (!isset($prefs['arc_twitter_prefix']))
@@ -53,6 +54,11 @@ if (!isset($prefs['arc_twitter_tab'])) {
   set_pref('arc_twitter_tab', 'extensions', 'arc_twitter', 2,
     'arc_twitter_tab_select');
     $prefs['arc_twitter_tab'] = 'extensions';
+}
+
+// Check if arc_short_url is enabled
+if ($prefs['arc_short_url'] || $prefs['arc_twitter_url_method']=='arc_twitter') {
+  register_callback('arc_short_url_redirect', 'txp_die', 404);
 }
 
 if (@txpinterface == 'admin') {
@@ -491,6 +497,8 @@ function arc_twitter_prefs($event,$step)
             $prefix = $prefs['arc_twitter_prefix'];
         }
         $tweet_default = ($tweet_default) ? 1 : 0;
+        $short_url = ($short_url) ? 1 : 0;
+        if (!$short_site_url) $short_site_url = $prefs['siteurl'];
         set_pref('arc_twitter_tweet_default',$tweet_default);
         set_pref('arc_short_url',$short_url);
         set_pref('arc_twitter_url_method',$url_method);
@@ -538,7 +546,7 @@ function arc_twitter_prefs($event,$step)
                     tdcs(hed('TXP Tweet short URL', 2),2)
                 )
                 .tr(
-                    tda('<label for="arc_short_url_method">Enable TXP Tweet short URL redirect</label>',
+                    tda('<label for="arc_short_url">Enable TXP Tweet short URL redirect</label>',
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(yesnoRadio('arc_short_url', $short_url, '', 'arc_short_url')),
                     ' id="arc_short_url-on_off"'
@@ -870,7 +878,7 @@ function arc_shorten_url($url, $method='', $atts=array())
       return ($atts['id']) ? hu.$atts['id'] : false; break;
     case 'arc_twitter': // native URL shortening
     
-      return ($atts['id']) ? $prefs['arc_short_site_url'].$atts['id'] : false;
+      return ($atts['id']) ? PROTOCOL.$prefs['arc_short_site_url'].'/'.$atts['id'] : false;
       break;
       
     case 'isgd':
@@ -910,47 +918,43 @@ function arc_shorten_url($url, $method='', $atts=array())
 function arc_short_url_redirect($event, $step) {
   global $prefs;
   
-  // Only use redirect if enabled
-  if ($prefs['arc_short_url']) {
+  $have_id = 0;
   
-    $have_id = 0;
-    
-    // Check if there is an available short site url and if it is being used in
-    // this instance
-    $short_site_url = $prefs['arc_short_site_url'];  
-    if ($short_site_url) {
-      $url_parts = parse_url($short_site_url);
-      $re = '#^'.$url_parts['path'].'([0-9].*)#';
-      $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
-    }
-    
-    // Fall back to standard site url (smd_short_url behaviour)
-    if ($have_id) {
-      $url_parts = parse_url(hu);
-      $re = '#^'.$url_parts['path'].'([0-9].*)#';
-      $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
-    }
+  // Check if there is an available short site url and if it is being used in
+  // this instance
+  $short_site_url = $prefs['arc_short_site_url'];  
+  if ($short_site_url) {
+    $short_site_url = PROTOCOL.$short_site_url.'/';
+    $url_parts = parse_url($short_site_url);
+    $re = '#^'.$url_parts['path'].'([0-9].*)#';
+    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+  }
+  
+  // Fall back to standard site url (smd_short_url behaviour)
+  if ($have_id) {
+    $url_parts = parse_url(hu);
+    $re = '#^'.$url_parts['path'].'([0-9].*)#';
+    $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
+  }
 
-    // Do the redirect if we've got an article id
-	  if ($have_id) {
-		  $id = $m[1];
-		  $permlink = permlinkurl_id($id);
+  // Do the redirect if we've got an article id
+  if ($have_id) {
+	  $id = $m[1];
+	  $permlink = permlinkurl_id($id);
 
-		  if ($permlink) {
-			  ob_end_clean();
+	  if ($permlink) {
+		  ob_end_clean();
 
-			  // Stupid, over the top header setting for IE
-			  header("Status: 301");
-			  header("HTTP/1.0 301 Moved Permanently");
-			  header("Location: ".$permlink, TRUE, 301);
+		  // Stupid, over the top header setting for IE
+		  header("Status: 301");
+		  header("HTTP/1.0 301 Moved Permanently");
+		  header("Location: ".$permlink, TRUE, 301);
 
-			  // In case the header() method fails, fall back on a classic redirect
-			  echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
-			    .$permlink.'"></head><body></body></html>';
-			  die();
-		  }
+		  // In case the header() method fails, fall back on a classic redirect
+		  echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
+		    .$permlink.'"></head><body></body></html>';
+		  die();
 	  }
-  
   }
   
 }
