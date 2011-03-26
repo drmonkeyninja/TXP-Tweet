@@ -499,6 +499,7 @@ function arc_twitter_prefs($event,$step)
         $tweet_default = ($tweet_default) ? 1 : 0;
         $short_url = ($short_url) ? 1 : 0;
         if (!$short_site_url) $short_site_url = $prefs['siteurl'];
+        set_pref('arc_twitter_prefix',$prefix);
         set_pref('arc_twitter_tweet_default',$tweet_default);
         set_pref('arc_short_url',$short_url);
         set_pref('arc_twitter_url_method',$url_method);
