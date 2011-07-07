@@ -378,6 +378,44 @@ function arc_twitter_follow($atts, $thing=null)
     return $js.$html;
 }
 
+function arc_twitter_favorite($atts, $thing=null)
+{
+    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
+
+    extract(lAtts(array(
+        'user'      => $prefs['arc_twitter_user'],
+        'related'   => '',
+        'include_js'=> true,
+        'id'        => '',
+        'wraptag'   => '',
+        'class'     => ''
+    ),$atts));
+    
+    if ($id || $thisarticle['thisid']) {
+    
+      $q = 'related='.$user;
+      if ($related) $q .= ','.$related;
+      
+      if (!$id) {
+        $row = safe_row("tweet_id"
+        , 'arc_twitter', "article_id={$thisarticle['thisid']}");
+        if (!$id = row['tweet_id']) return false;
+      }
+      
+      $q .= '&amp;tweet_id='.$id;
+      
+      $html = href($thing,'http://twitter.com/intent/favorite?'.$q
+        , ' class="'.$class.'"');
+        
+      $js = ($include_js) ? _arc_twitter_widget_js() : '';
+        
+      return $js.$html;
+    
+    }
+    
+    return false;
+}
+
 function arc_twitter_retweet($atts, $thing=null)
 {
     global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
