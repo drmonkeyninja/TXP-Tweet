@@ -349,14 +349,13 @@ JS;
 
 function arc_twitter_follow($atts, $thing=null)
 {
-    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
+    global $prefs;
 
     extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'],
         'user_id'   => '',
         'lang'      => '',
         'include_js'=> true,
-        'wraptag'   => '',
         'class'     => ''
     ),$atts));
     
@@ -380,21 +379,20 @@ function arc_twitter_follow($atts, $thing=null)
 
 function arc_twitter_favorite($atts, $thing=null)
 {
-    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
+    global $prefs, $thisarticle; 
 
     extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'],
         'related'   => '',
         'include_js'=> true,
         'id'        => '',
-        'wraptag'   => '',
         'class'     => ''
     ),$atts));
     
     if ($id || $thisarticle['thisid']) {
     
       $q = 'related='.$user;
-      if ($related) $q .= ','.$related;
+      if ($related) $q .= urlencode(($q?',':'related=').$related);
       
       if (!$id) {
         $row = safe_row("tweet_id"
