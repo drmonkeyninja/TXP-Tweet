@@ -397,7 +397,7 @@ function arc_twitter_favorite($atts, $thing=null)
       if (!$id) {
         $row = safe_row("tweet_id"
         , 'arc_twitter', "article_id={$thisarticle['thisid']}");
-        if (!$id = row['tweet_id']) return false;
+        if (!$id = $row['tweet_id']) return false;
       }
       
       $q .= '&amp;tweet_id='.$id;
@@ -432,7 +432,7 @@ function arc_twitter_reply($atts, $thing=null)
       if (!$id) {
         $row = safe_row("tweet_id"
         , 'arc_twitter', "article_id={$thisarticle['thisid']}");
-        if (!$id = row['tweet_id']) return false;
+        if (!$id = $row['tweet_id']) return false;
       }
     
       $q = 'in_reply_to='.$id;
