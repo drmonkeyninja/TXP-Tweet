@@ -354,7 +354,12 @@ JS;
   return $js;
 }
 
+// Deprecated arc_twitter_retweet tag, use arc_twitter_tweet_button instead
 function arc_twitter_retweet($atts, $thing=null)
+{
+  return arc_twitter_tweet_button($atts, $thing=null);
+}
+function arc_twitter_tweet_button($atts, $thing=null)
 {
     global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
     global $thisarticle; 
