@@ -91,6 +91,43 @@ function arc_twitter_intent_favorite($atts, $thing=null)
     return false;
 }
 
+function arc_twitter_intent_retweet($atts, $thing=null)
+{
+    global $prefs, $thisarticle; 
+
+    extract(lAtts(array(
+        'user'      => $prefs['arc_twitter_user'],
+        'related'   => '',
+        'include_js'=> true,
+        'id'        => '',
+        'class'     => ''
+    ),$atts));
+    
+    if ($id || $thisarticle['thisid']) {
+    
+      $q = 'related='.$user;
+      if ($related) $q .= urlencode(($q?',':'related=').$related);
+      
+      if (!$id) {
+        $row = safe_row("tweet_id"
+        , 'arc_twitter', "article_id={$thisarticle['thisid']}");
+        if (!$id = $row['tweet_id']) return false;
+      }
+      
+      $q .= '&amp;tweet_id='.$id;
+      
+      $html = href($thing,'http://twitter.com/intent/retweet?'.$q
+        , ' class="'.$class.'"');
+        
+      $js = ($include_js) ? _arc_twitter_widget_js() : '';
+        
+      return $js.$html;
+    
+    }
+    
+    return false;
+}
+
 function arc_twitter_intent_reply($atts, $thing=null)
 {
     global $prefs, $thisarticle; 
