@@ -296,7 +296,13 @@ function arc_twitter_tinyurl($atts, $thing=null) {
     }
 }
 
-function _arc_twitter_widget_js() {
+function _arc_twitter_widget_js()
+{
+  global $arc_twitter;
+  
+  // Check if widget JS has already been output
+  if ($arc_twitter['widget_js']) return;
+  
   $js = <<<JS
 <script type="text/javascript">
 (function() {
@@ -344,6 +350,7 @@ function _arc_twitter_widget_js() {
 }());
 </script>
 JS;
+  $arc_twitter['widget_js'] = true;
   return $js;
 }
 
