@@ -381,16 +381,17 @@ function arc_twitter_tweet_button($atts, $thing=null)
     global $thisarticle; 
 
     extract(lAtts(array(
-        'user'      => $prefs['arc_twitter_user'], // via user account
-        'url'       => '',
-        'text'      => '',
-        'follow1'   => '',
-        'follow2'   => '',
-        'lang'      => '',
-        'count'     => 'horizontal',
-        'include_js'=> true,
-        'wraptag'   => '',
-        'class'     => 'twitter-share-button'
+        'user'        => $prefs['arc_twitter_user'], // via user account
+        'url'         => '',
+        'text'        => '',
+        'follow1'     => '',
+        'follow2'     => '',
+        'lang'        => '',
+        'count'       => 'horizontal',
+        'include_js'  => true,
+        'optimise_js' => false,
+        'wraptag'     => '',
+        'class'       => 'twitter-share-button'
     ),$atts));
     
     $q = ''; // query string
@@ -437,9 +438,7 @@ function arc_twitter_tweet_button($atts, $thing=null)
     $html = href($thing,'http://twitter.com/share?'.$q
       , ' class="'.$class.'"');
     
-    $js = ($include_js) ?
-      '<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>'
-      : '';
+    $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
     
     return $js.$html;
 }
