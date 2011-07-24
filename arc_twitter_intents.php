@@ -38,12 +38,7 @@ function arc_twitter_intent_follow($atts, $thing=null)
     
     $q = ($user_id) ? 'user_id='.$user_id : 'screen_name='.$user;
     
-    switch ($lang) {
-      case 'fr': break; case 'it': break; case 'es': break; 
-      case 'ko': break; case 'jp': break;
-      default:
-        $lang = 'en';
-    }
+    $lang = _arc_twitter_intents_lang($lang);    
     $q .= '&amp;lang='.urlencode($lang);
     
     $thing = ($thing===null) ? 'Follow' : parse($thing);
@@ -64,6 +59,7 @@ function arc_twitter_intent_favorite($atts, $thing=null)
         'user'      => $prefs['arc_twitter_user'],
         'related'   => '',
         'include_js'=> true,
+        'lang'      => '',
         'id'        => '',
         'class'     => ''
     ),$atts));
@@ -80,6 +76,9 @@ function arc_twitter_intent_favorite($atts, $thing=null)
       }
       
       $q .= '&amp;tweet_id='.$id;
+      
+      $lang = _arc_twitter_intents_lang($lang);    
+      $q .= '&amp;lang='.urlencode($lang);
       
       $thing = ($thing===null) ? 'Favorite' : parse($thing);
       
@@ -103,6 +102,7 @@ function arc_twitter_intent_retweet($atts, $thing=null)
         'user'      => $prefs['arc_twitter_user'],
         'related'   => '',
         'include_js'=> true,
+        'lang'      => '',
         'id'        => '',
         'class'     => ''
     ),$atts));
@@ -119,6 +119,9 @@ function arc_twitter_intent_retweet($atts, $thing=null)
       }
       
       $q .= '&amp;tweet_id='.$id;
+      
+      $lang = _arc_twitter_intents_lang($lang);    
+      $q .= '&amp;lang='.urlencode($lang);
       
       $thing = ($thing===null) ? 'Retweet' : parse($thing);
       
@@ -143,6 +146,7 @@ function arc_twitter_intent_reply($atts, $thing=null)
         'related'   => '',
         'text'      => '',
         'include_js'=> true,
+        'lang'      => '',
         'id'        => '',
         'class'     => ''
     ),$atts));
@@ -167,6 +171,9 @@ function arc_twitter_intent_reply($atts, $thing=null)
         $q .= '&amp;text='.urlencode($text);
       }
       
+      $lang = _arc_twitter_intents_lang($lang);    
+      $q .= '&amp;lang='.urlencode($lang);
+      
       $thing = ($thing===null) ? 'Reply' : parse($thing);
       
       $html = href($thing,'http://twitter.com/intent/tweet?'.$q
@@ -179,6 +186,16 @@ function arc_twitter_intent_reply($atts, $thing=null)
     }
     
     return false;
+}
+
+/*
+ * Set the intent language
+ */
+function _arc_twitter_intents_lang($lang='en')
+{
+  $lang = strtolower($lang);
+  $langs = array('en', 'it', 'es', 'fr', 'ko', 'jp');
+  return (in_array($lang,$langs)) ? $lang : 'en';
 }
 
 
