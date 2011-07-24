@@ -2358,18 +2358,20 @@ h3. Example usage
 Produces a list of tweets containing the word 'plugin' and the hashtags '#txp' and '#textpattern'. The tag will return a maximum of 25 tweets.
 
 
-h2(section#arc_twitter_retweet_tag). The arc_twitter_retweet tag
+h2(section#arc_twitter_retweet_tag). The arc_twitter_tweet_button tag
+
+Outputs the Twitter tweet button (formerly &lt;txp:arc_twitter_retweet /&gt;).
 
 h3. Syntax
 
-&lt;txp:arc_twitter_retweet /&gt;
+&lt;txp:arc_twitter_tweet_button /&gt;
 
 h3. Usage
 
 |_. Attribute|_. Description|_. Default|_. Example|
 |user|Twitter user name to quote| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
-|url|URL to retweet| | |
-|text|Retweet text| | |
+|url|URL to tweet| | |
+|text|Tweet text| | |
 |follow1|Suggested Twitter account to follow, for example your own|A Twitter user to recommend|follow1=&quot;Textpattern&quot;|
 |follow2|As follow1| _unset_| |
 |lang|Language|en|lang=&quot;es&quot;|
