@@ -46,6 +46,8 @@ function arc_twitter_intent_follow($atts, $thing=null)
     }
     $q .= '&amp;lang='.urlencode($lang);
     
+    $thing = ($thing===null) ? 'Follow' : parse($thing);
+    
     $html = href($thing,'http://twitter.com/intent/user?'.$q
       , ' class="'.$class.'"');
       
@@ -78,6 +80,8 @@ function arc_twitter_intent_favorite($atts, $thing=null)
       }
       
       $q .= '&amp;tweet_id='.$id;
+      
+      $thing = ($thing===null) ? 'Favorite' : parse($thing);
       
       $html = href($thing,'http://twitter.com/intent/favorite?'.$q
         , ' class="'.$class.'"');
@@ -115,6 +119,8 @@ function arc_twitter_intent_retweet($atts, $thing=null)
       }
       
       $q .= '&amp;tweet_id='.$id;
+      
+      $thing = ($thing===null) ? 'Retweet' : parse($thing);
       
       $html = href($thing,'http://twitter.com/intent/retweet?'.$q
         , ' class="'.$class.'"');
@@ -160,6 +166,8 @@ function arc_twitter_intent_reply($atts, $thing=null)
       if ($text) {
         $q .= '&amp;text='.urlencode($text);
       }
+      
+      $thing = ($thing===null) ? 'Reply' : parse($thing);
       
       $html = href($thing,'http://twitter.com/intent/tweet?'.$q
         , ' class="'.$class.'"');
