@@ -33,6 +33,7 @@ function arc_twitter_intent_follow($atts, $thing=null)
         'user_id'   => '',
         'lang'      => '',
         'include_js'=> true,
+        'optimise_js' => false,
         'class'     => ''
     ),$atts));
     
@@ -46,7 +47,7 @@ function arc_twitter_intent_follow($atts, $thing=null)
     $html = href($thing,'http://twitter.com/intent/user?'.$q
       , ' class="'.$class.'"');
       
-    $js = ($include_js) ? _arc_twitter_widget_js() : '';
+    $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
       
     return $js.$html;
 }
@@ -59,6 +60,7 @@ function arc_twitter_intent_favorite($atts, $thing=null)
         'user'      => $prefs['arc_twitter_user'],
         'related'   => '',
         'include_js'=> true,
+        'optimise_js' => false,
         'lang'      => '',
         'id'        => '',
         'class'     => ''
@@ -85,7 +87,7 @@ function arc_twitter_intent_favorite($atts, $thing=null)
       $html = href($thing,'http://twitter.com/intent/favorite?'.$q
         , ' class="'.$class.'"');
         
-      $js = ($include_js) ? _arc_twitter_widget_js() : '';
+      $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
         
       return $js.$html;
     
@@ -102,6 +104,7 @@ function arc_twitter_intent_retweet($atts, $thing=null)
         'user'      => $prefs['arc_twitter_user'],
         'related'   => '',
         'include_js'=> true,
+        'optimise_js' => false,
         'lang'      => '',
         'id'        => '',
         'class'     => ''
@@ -128,7 +131,7 @@ function arc_twitter_intent_retweet($atts, $thing=null)
       $html = href($thing,'http://twitter.com/intent/retweet?'.$q
         , ' class="'.$class.'"');
         
-      $js = ($include_js) ? _arc_twitter_widget_js() : '';
+      $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
         
       return $js.$html;
     
@@ -146,6 +149,7 @@ function arc_twitter_intent_reply($atts, $thing=null)
         'related'   => '',
         'text'      => '',
         'include_js'=> true,
+        'optimise_js' => false,
         'lang'      => '',
         'id'        => '',
         'class'     => ''
@@ -179,7 +183,7 @@ function arc_twitter_intent_reply($atts, $thing=null)
       $html = href($thing,'http://twitter.com/intent/tweet?'.$q
         , ' class="'.$class.'"');
         
-      $js = ($include_js) ? _arc_twitter_widget_js() : '';
+      $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
         
       return $js.$html;
     
