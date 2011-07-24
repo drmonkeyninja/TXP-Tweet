@@ -296,12 +296,28 @@ function arc_twitter_tinyurl($atts, $thing=null) {
     }
 }
 
-function _arc_twitter_widget_js()
+/*
+ * Public tag for outputting widget JS
+ */
+function arc_twitter_widget_js($atts)
+{
+  extract(lAtts(array(
+        'optimise' => false
+    ),$atts));
+    
+  return _arc_twitter_widget_js($optimise);
+}
+
+function _arc_twitter_widget_js($optimise=true)
 {
   global $arc_twitter;
   
   // Check if widget JS has already been output
   if ($arc_twitter['widget_js']) return;
+  
+  if ($optimise==false) {
+    return '<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>';
+  }
   
   $js = <<<JS
 <script type="text/javascript">
@@ -424,6 +440,44 @@ function arc_twitter_tweet_button($atts, $thing=null)
     $js = ($include_js) ?
       '<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>'
       : '';
+    
+    return $js.$html;
+}
+
+/*
+ * Twitter Follow button
+ */
+function arc_twitter_follow_button($atts, $thing=null)
+{
+    global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
+    global $thisarticle; 
+
+    extract(lAtts(array(
+        'user'        => $prefs['arc_twitter_user'], // via user account
+        'lang'        => '',
+        'count'       => true,
+        'include_js'  => true,
+        'optimise_js' => false,
+        'class'       => 'twitter-follow-button'
+    ),$atts));
+    
+    $atts = ''; // data attributes
+    
+    switch ($lang) {
+      case 'fr': break; case 'de': break; case 'es': break; case 'jp': break;
+      default:
+        $lang = 'en';
+    }
+    $atts .= ' data-lang="'.urlencode($lang).'"';
+    
+    $atts .= ' data-show-count="'.($count?'true':'false').'"';
+    
+    $thing = ($thing===null) ? 'Follow @'.$user : parse($thing);
+    
+    $html = href($thing,'http://twitter.com/'.urlencode($user)
+      , ' class="'.$class.'"'.$atts);
+    
+    $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
     
     return $js.$html;
 }
