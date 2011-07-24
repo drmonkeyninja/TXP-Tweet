@@ -2318,7 +2318,8 @@ h1(title). TXP Tweet (arc_twitter for Textpattern)
 # "Installation / Uninstallation":#arc_twitter_installation
 # "The arc_twitter tag":#arc_twitter_tag
 # "The arc_twitter_search tag":#arc_twitter_search_tag
-# "The arc_twitter_retweet tag":#arc_twitter_retweet_tag
+# "The arc_twitter_tweet_button tag":#arc_twitter_tweet_button_tag
+# "The arc_twitter_follow_button tag":#arc_twitter_follow_button_tag
 # "The arc_twitter_tweet_url tag":#arc_twitter_tweet_url
 # "The arc_twitter_tinyurl tag":#arc_twitter_tinyurl
 # "Caching":#arc_twitter_caching
@@ -2430,9 +2431,28 @@ h3. Usage
 |follow2|As follow1| _unset_| |
 |lang|Language|en|lang=&quot;es&quot;|
 |count|Count box position, options: none, horizontal or vertical|horizontal|count=&quot;none&quot;|
-|include_js|Whether or not to include the JavaScript|1|include_js=&quot;0&quot;|
-|wraptag|HTML tag to be used as the wraptag, without brackets| _unset_| |
-|class|CSS class attribute applied to the retweet button|twitter-share-button| |
+|include_js|Whether or not to include the widget JavaScript|1|include_js=&quot;0&quot;|
+|optimise_js|Optimise the JavaScript by using a local script rather than that hosted on the Twitter site|0|optimise_js=&quot;1&quot;|
+|class|CSS class attribute applied to the tweet button|twitter-share-button| |
+
+
+h2(section#arc_twitter_follow_button_tag). The arc_twitter_follow_button tag
+
+Outputs the Twitter follow button (an alternative version is included in arc_twitter_intents).
+
+h3. Syntax
+
+&lt;txp:arc_twitter_follow_button /&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|user|Twitter user name to follow| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|lang|Language|en|lang=&quot;es&quot;|
+|count|Whether or not the follower count is shown|1|count=&quot;0&quot;|
+|include_js|Whether or not to include the widget JavaScript|1|include_js=&quot;0&quot;|
+|optimise_js|Optimise the JavaScript by using a local script rather than that hosted on the Twitter site|0|optimise_js=&quot;1&quot;|
+|class|CSS class attribute applied to the follow button|twitter-follow-button| |
 
 
 h2(section#arc_twitter_tweet_url). arc_twitter_tweet_url
