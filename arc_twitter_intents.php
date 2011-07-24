@@ -4,7 +4,7 @@ $plugin['name'] = 'arc_twitter_intents';
 $plugin['version'] = '1.0-dev';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
-$plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
+$plugin['description'] = 'Twitter Web Intents';
 $plugin['order'] = '5';
 $plugin['type'] = '0';
 
