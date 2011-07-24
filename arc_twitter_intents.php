@@ -211,6 +211,87 @@ if (0) {
 
 h1(title). TXP Tweet Intents
 
+arc_twitter_intents requires arc_twitter v3 or higher to work.
+
+h2(section). The arc_twitter_intent_follow tag
+
+h3. Syntax
+
+&lt;txp:arc_twitter_intent_follow&gt;Follow&lt;/txp:arc_twitter_intent_follow&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|user|Twitter user name to follow| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|user_id|Twitter user id to follow (overrides the user attribute)| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+
+
+h2(section). The arc_twitter_intent_favorite tag
+
+h3. Syntax
+
+&lt;txp:arc_twitter_intent_favorite&gt;Favorite&lt;/txp:arc_twitter_intent_favorite&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|id|Tweet id to favourite| _article's associated tweet from arc_twitter_| |
+|user|Twitter user name related to tweet| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|related|Comma separated list of related Twitter users to recommend following| _unset_|related=&quot;textpattern, twitter&quot;|
+
+
+h2(section). The arc_twitter_intent_retweet tag
+
+h3. Syntax
+
+&lt;txp:arc_twitter_intent_retweet&gt;Retweet&lt;/txp:arc_twitter_intent_retweet&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|id|Tweet id to retweet| _article's associated tweet from arc_twitter_| |
+|user|Twitter user name related to tweet| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|related|Comma separated list of related Twitter users to recommend following| _unset_|related=&quot;textpattern, twitter&quot;|
+
+
+h2(section). The arc_twitter_intent_reply tag
+
+h3. Syntax
+
+&lt;txp:arc_twitter_intent_reply&gt;Reply&lt;/txp:arc_twitter_intent_reply&gt;
+
+h3. Usage
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|id|Tweet id to reply to| _article's associated tweet from arc_twitter_| |
+|user|Twitter user name related to tweet (used for recommended accounts)| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|related|Comma separated list of related Twitter users to recommend following| _unset_|related=&quot;textpattern, twitter&quot;|
+|text|Set some text for the reply tweet| _unset_| |
+
+
+h2(section). Language
+
+All the arc_twitter_intents tags have an optional "lang" attribute for setting the language of the Twitter interface. The following values/languages are available:-
+
+|_. Attribute value|_. Language|
+|en|English (default)|
+|fr|French|
+|it|Italian|
+|es|Spanish|
+|ko|Korean|
+|jp|Japanese|
+
+
+h2(section). JavaScript
+
+All the arc_twitter_intents tags have two optional attributes that relate to the inclusion of the Twitter widget JavaScript.
+
+|_. Attribute|_. Description|_. Default|_. Example|
+|include_js|Include the Twitter widget JavaScript|true|include_js=&quot;false&quot;|
+|optimise_js|Optimise the JavaScript by using a local script rather than that hosted on the Twitter site|false|optimise_js=&quot;true&quot;|
+
+TXP Tweet will only include the widget JavaScript once on a page regardless of the number of tags used that include it.
+
 
 # --- END PLUGIN HELP ---
 -->
