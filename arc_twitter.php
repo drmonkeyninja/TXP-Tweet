@@ -827,7 +827,8 @@ function arc_append_twitter($event, $step, $data, $rs1)
         $content = arc_Twitter::makeLinks($rs2['tweet']);
         return $data.fieldset($content, 'Twitter update', 'arc_twitter');
     } else {
-        $var = ($rs1['ID']) ? 0 : $prefs['arc_twitter_tweet_default'];
+        $var = gps('arc_tweet_this');
+        $var = ($rs1['ID']&&!$var) ? 0 : $prefs['arc_twitter_tweet_default'];
         $content  = tag(yesnoRadio('arc_tweet_this', $var, '', 'arc_tweet_this'),'p');
         $content .= tag(href('Options','#arc_twitter_options'),'p',' class="plain lever" style="margin-top:5px;"');
         $content .= tag(tag(tag('Tweet prefix','label', ' for="arc_twitter_prefix"')
