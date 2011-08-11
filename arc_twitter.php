@@ -1098,7 +1098,8 @@ class arc_twitter extends TwitterOAuth {
 
     public function callbackURL($event,$step)
     {
-        return hu.'textpattern/index.php?event='.$event.'&amp;step='.$step;
+        return preg_replace('/\?.*/', '',PROTOCOL.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'])
+          .'?event='.$event.'&amp;step='.$step;
     }
 
     // create Twitter and external links in text
