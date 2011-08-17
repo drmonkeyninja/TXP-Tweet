@@ -38,6 +38,8 @@ if (!isset($prefs['arc_twitter_user']))
     set_pref('arc_twitter_user', '', 'arc_twitter', 1, 'text_input');
 if (!isset($prefs['arc_twitter_prefix']))
   set_pref('arc_twitter_prefix','Just posted:', 'arc_twitter', 2, 'text_input');
+if (!isset($prefs['arc_twitter_suffix']))
+  set_pref('arc_twitter_suffix','', 'arc_twitter', 2, 'text_input');
 if (!isset($prefs['arc_twitter_cache_dir']))
   set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].$prefs['tempdir'], 'arc_twitter', 1, 'text_input');
 if (!isset($prefs['arc_twitter_tweet_default']))
@@ -543,6 +545,7 @@ function arc_twitter_prefs($event,$step)
 
     $user          = $prefs['arc_twitter_user'];
     $prefix        = $prefs['arc_twitter_prefix'];
+    $suffix        = $prefs['arc_twitter_suffix'];
     $tweet_default = $prefs['arc_twitter_tweet_default'];
     $url_method    = $prefs['arc_twitter_url_method'];
     $short_url     = $prefs['arc_short_url'];
@@ -602,6 +605,7 @@ function arc_twitter_prefs($event,$step)
 
     if ($step=="prefs_save") {
         $prefix = trim(gps('arc_twitter_prefix'));
+        $suffix = trim(gps('arc_twitter_suffix'));
         $tweet_default = gps('arc_twitter_tweet_default');
         $url_method = gps('arc_twitter_url_method');
         $short_url = gps('arc_short_url');
@@ -612,6 +616,11 @@ function arc_twitter_prefs($event,$step)
             set_pref('arc_twitter_prefix',$prefix);
         } else {
             $prefix = $prefs['arc_twitter_prefix'];
+        }
+        if (strlen($suffix)<=20) {
+            set_pref('arc_twitter_suffix',$suffix);
+        } else {
+            $suffix = $prefs['arc_twitter_suffix'];
         }
         $tweet_default = ($tweet_default) ? 1 : 0;
         $short_url = ($short_url) ? 1 : 0;
@@ -648,9 +657,13 @@ function arc_twitter_prefs($event,$step)
                     tdcs(hed('Tweet settings', 2),2)
                 )
                 .tr(
-                    tda('<label for="arc_twitter_cache_dir">Tweet prefix</label>',
+                    tda('<label for="arc_twitter_prefix">Tweet prefix</label>',
                         ' style="text-align: right; vertical-align: middle;"')
                     .td(fInput('text','arc_twitter_prefix',$prefix,'','','','','','arc_twitter_prefix'))
+                ).tr(
+                    tda('<label for="arc_twitter_suffix">Tweet suffix</label>',
+                        ' style="text-align: right; vertical-align: middle;"')
+                    .td(fInput('text','arc_twitter_suffix',$suffix,'','','','','','arc_twitter_suffix'))
                 ).tr(
                     tda('<label for="arc_twitter_tweet_default">Tweet articles by default</label>',
                         ' style="text-align: right; vertical-align: middle;"')
@@ -869,6 +882,7 @@ function arc_append_twitter($event, $step, $data, $rs1)
     $prefix = trim(gps('arc_twitter_prefix'));
     $prefix = ($prefix) ? $prefix : $prefs['arc_twitter_prefix'];
     $suffix = trim(gps('arc_twitter_suffix'));
+    $suffix = ($suffix) ? $suffix : $prefs['arc_twitter_suffix'];
 
     if ($rs1['ID']) {
         $sql = "SELECT tweet_id,tweet FROM ".PFX."arc_twitter WHERE article_id=".$rs1['ID'].";";
