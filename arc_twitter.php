@@ -57,7 +57,8 @@ if (!isset($prefs['arc_twitter_tab'])) {
 }
 
 // Check if arc_short_url is enabled
-if ($prefs['arc_short_url'] || $prefs['arc_twitter_url_method']=='arc_twitter') {
+if ((isset($prefs['arc_short_url'])&&$prefs['arc_short_url'])
+|| (isset($prefs['arc_short_url_method'])&&$prefs['arc_twitter_url_method']=='arc_twitter')) {
   register_callback('arc_short_url_redirect', 'txp_die', 404);
 }
 
