@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '3.0';
+$plugin['version'] = '3.0.1';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -108,7 +108,9 @@ function arc_twitter($atts)
     'class_posted' => __FUNCTION__.'-posted'
     ),$atts));
 
-  $twit = new arc_Twitter($arc_twitter_consumerKey, $arc_twitter_consumerSecret);
+  $twit = new arc_twitter($arc_twitter_consumerKey
+            , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
+            , $prefs['arc_twitter_accessTokenSecret']);
 
   if ($caching) {  // turn on caching, recommended (default)
     $twit->setCaching(true);
