@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '3.0.1';
+$plugin['version'] = '3.1';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -65,6 +65,7 @@ if ((isset($prefs['arc_short_url'])&&$prefs['arc_short_url'])
 }
 
 if (@txpinterface == 'admin') {
+    register_callback('_arc_twitter_auto_enable', 'plugin_lifecycle.arc_twitter', 'installed');
     if (!empty($prefs['arc_twitter_user'])
         && !empty($prefs['arc_twitter_accessToken'])
         && !empty($prefs['arc_twitter_accessTokenSecret']) ) {
@@ -1091,6 +1092,17 @@ function arc_short_url_redirect($event, $step) {
 	  }
   }
   
+}
+
+// Auto enable plugin on install (original idea by Michael Manfre)
+function _arc_twitter_auto_enable($event, $step)
+{ 
+  $plugin = substr($event, strlen('plugin_lifecycle.'));
+  $prefix = 'arc_twitter';
+  if (strncmp($plugin, $prefix, strlen($prefix)) == 0)
+  {
+    safe_update('txp_plugin', "status = 1", "name = '" . doSlash($plugin) . "'");
+  }
 }
 
 /*
@@ -2361,7 +2373,7 @@ Thanks to "Michael Manfre":http://manfre.net/ for inspiration for the article tw
 
 h2(section#arc_twitter_installation). Installation / Uninstallation
 
-To install go to the 'plugins' tab under 'admin' and paste the plugin code into the 'Install plugin' box, 'upload' and then 'install'. Finally activate the plugin. 
+To install go to the 'plugins' tab under 'admin' and paste the plugin code into the 'Install plugin' box, 'upload' and then 'install'. The plugin will be automatically activated.
 
 Before you start using %(tag)arc_twitter% you will need to make sure that the cache directory is writable. See the 'Caching' subsection below for further information.
 
