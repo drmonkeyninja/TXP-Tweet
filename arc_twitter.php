@@ -1095,10 +1095,9 @@ function arc_short_url_redirect($event, $step) {
 }
 
 // Auto enable plugin on install (original idea by Michael Manfre)
-function _arc_twitter_auto_enable($event, $step)
+function _arc_twitter_auto_enable($event, $step, $prefix='arc_twitter')
 { 
   $plugin = substr($event, strlen('plugin_lifecycle.'));
-  $prefix = 'arc_twitter';
   if (strncmp($plugin, $prefix, strlen($prefix)) == 0)
   {
     safe_update('txp_plugin', "status = 1", "name = '" . doSlash($plugin) . "'");
