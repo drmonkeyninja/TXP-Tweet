@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter_intents';
-$plugin['version'] = '1.0';
+$plugin['version'] = '1.1';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = 'Twitter Web Intents';
@@ -21,8 +21,12 @@ $plugin['flags'] = '3';
 # --- BEGIN PLUGIN CODE ---
 global $prefs,$txpcfg;
 
-// arc_twitter_intents requires arc_twitter v3 or higher
+// arc_twitter_intents requires arc_twitter v3.1 or higher
 require_plugin('arc_twitter');
+
+if (@txpinterface == 'admin') {
+    register_callback('_arc_twitter_auto_enable', 'plugin_lifecycle.arc_twitter_intents', 'installed');
+}
 
 function arc_twitter_intent_follow($atts, $thing=null)
 {
@@ -211,7 +215,7 @@ if (0) {
 
 h1(title). TXP Tweet Intents
 
-arc_twitter_intents requires arc_twitter v3 or higher to work.
+arc_twitter_intents requires arc_twitter v3.1 or higher to work.
 
 h2(section). The arc_twitter_intent_follow tag
 
