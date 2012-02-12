@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '3.1';
+$plugin['version'] = '3.2-dev';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -97,6 +97,7 @@ function arc_twitter($atts)
     'timeline'  => 'user',
     'limit'     => '10',
     'retweets'  => false,
+    'replies'   => true,
     'dateformat'=> $prefs['archive_dateformat'],
     'caching'   => '1',
     'cache_dir' => $prefs['arc_twitter_cache_dir'],
@@ -130,8 +131,12 @@ function arc_twitter($atts)
   }
 
   $out = array();
-  $xml = $twit->get($timeline
-    , array('screen_name'=>$user,'count'=>$limit,'include_rts'=>$retweets));
+  $xml = $twit->get($timeline, array(
+      'screen_name'=>$user,
+      'count'=>$limit,
+      'include_rts'=>$retweets,
+      'exclude_replies'=>!$replies
+    ));
   if ($xml) {
     $tweets = @$xml->xpath('/statuses/status');
     if ($tweets) foreach ($tweets as $tweet) {
