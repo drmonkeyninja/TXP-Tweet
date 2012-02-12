@@ -96,6 +96,7 @@ function arc_twitter($atts)
     'password'  => '',
     'timeline'  => 'user',
     'limit'     => '10',
+    'fetch'     => 0,
     'retweets'  => false,
     'replies'   => true,
     'dateformat'=> $prefs['archive_dateformat'],
@@ -129,21 +130,28 @@ function arc_twitter($atts)
       $timeline = 'statuses/mentions'; break;
     case 'user': default: $timeline = 'statuses/user_timeline';
   }
+  
+  // Check that the fetch (Twitter's count attribute) is set correctly
+  $fetch = (!$fetch || $fetch<$limit) ? $limit : $fetch;
 
   $out = array();
   $xml = $twit->get($timeline, array(
       'screen_name'=>$user,
-      'count'=>$limit,
+      'count'=>$fetch,
       'include_rts'=>$retweets,
       'exclude_replies'=>!$replies
     ));
   if ($xml) {
     $tweets = @$xml->xpath('/statuses/status');
-    if ($tweets) foreach ($tweets as $tweet) {
-      $time = strtotime(htmlentities($tweet->created_at));
-      $date = safe_strftime($dateformat,$time);
-      $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
-        .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
+    if ($tweets) {
+      // Apply the display limit to the returned tweets
+      $tweets = array_slice($tweets, 0, $limit);
+      foreach ($tweets as $tweet) {
+        $time = strtotime(htmlentities($tweet->created_at));
+        $date = safe_strftime($dateformat,$time);
+        $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
+          .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
+      }
     }
 
     return doLabel($label, $labeltag).doWrap($out, $wraptag, $break, $class);
