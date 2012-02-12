@@ -2408,7 +2408,10 @@ h3. Usage
 
 |_. Attribute|_. Description|_. Default|_. Example|
 |user|Twitter user name| _arc_twitter username_|user=&quot;drmonkeyninja&quot;|
+|retweets|1 to include retweets, 0 to exclude them from the feed|0| |
+|replies|1 to include replies, 0 to exclude them from the feed|1| |
 |limit|Maximum number of tweets to display (max. 200)|10|limit=&quot;25&quot;|
+|fetch|Maximum number of tweets to retrieve from Twitter (max. 200)[1]|0|fetch=&quot;50&quot;|
 |dateformat|Format that update dates will appear as| _Archive date format_|dateformat=&quot;%b %Oe, %I:%M %p&quot;|
 |label|Label for the top of the list| _no label_|label=&quot;My Twitter timeline&quot;|
 |labeltag|Independent wraptag for label| _unset_|labeltag=&quot;h3&quot;|
@@ -2416,6 +2419,8 @@ h3. Usage
 |wraptag|HTML tag to be used as the wraptag, without brackets| _unset_|wraptag=&quot;ul&quot;|
 |class|CSS class attribute for wraptag|arc_twitter|class=&quot;twitter&quot;|
 |class_posted|CSS class attribute applied to span tag around posted date|arc_twitter-posted| |
+
+fn1. Twitter's API counts the number of tweets to return before applying some of the filters, so the response can be fewer tweets than expected. To help avoid this you can set a _fetch_ limit that is higher than the display _limit_ that you want to output. If _fetch_ is less than _limit_ the latter will be used instead.
 
 
 h3. Example usage
