@@ -908,7 +908,7 @@ function arc_append_twitter($event, $step, $data, $rs1)
     }
 
     if ($rs1['ID'] && $rs2['tweet_id']) {
-        $content = arc_Twitter::makeLinks($rs2['tweet']);
+        $content = tag(arc_Twitter::makeLinks($rs2['tweet']),'p');
         return $data.fieldset($content, 'Twitter update', 'arc_twitter');
     } else {
         $var = gps('arc_tweet_this');
