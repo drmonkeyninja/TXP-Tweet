@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '3.2';
+$plugin['version'] = '3.2-dev';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -1147,13 +1147,13 @@ class arc_twitter extends TwitterOAuth {
     public static function makeLinks($text)
     {
         $url = '/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i';
-        $text = preg_replace($url, "<a href='$0'>$0</a>", $text);
+        $text = preg_replace($url, "<a href='$0' rel='external'>$0</a>", $text);
         $url = '/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i';
-        $text = preg_replace($url, "<a href='http://www.$2$3'>www.$2$3</a>", $text);       
+        $text = preg_replace($url, "<a href='http://www.$2$3' rel='external'>www.$2$3</a>", $text);       
         $text = preg_replace("/(^|\s)@([a-z_A-Z0-9]+)/",
-            "$1@<a href='http://twitter.com/$2'>$2</a>",$text);
+            "$1@<a href='http://twitter.com/$2' rel='external'>$2</a>",$text);
         $text = preg_replace("/(^|\s)(\#([a-z_A-Z0-9:_-]+))/",
-            "$1<a href='http://twitter.com/search?q=%23$3'>$2</a>",$text);
+            "$1<a href='http://twitter.com/search?q=%23$3' rel='external'>$2</a>",$text);
         return $text;
   }
 
