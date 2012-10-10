@@ -6,7 +6,7 @@ $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
 $plugin['order'] = '5';
-$plugin['type'] = '1';
+$plugin['type'] = '5';
 
 // Plugin "flags" signal the presence of optional capabilities to the core plugin loader.
 // Use an appropriately OR-ed combination of these flags.
@@ -77,7 +77,8 @@ if (@txpinterface == 'admin') {
         }
 
         register_callback('arc_article_tweet', 'ping');
-        register_callback('arc_article_tweet', 'article', 'edit', 1);
+        register_callback('arc_article_tweet', 'article_saved');
+        register_callback('arc_article_tweet', 'article_posted');
         register_callback('arc_append_twitter', 'article_ui', 'status');
     }
 }
@@ -894,7 +895,8 @@ function arc_admin_twitter($event,$step)
 // Add Twitter options to article article screen
 function arc_append_twitter($event, $step, $data, $rs1)
 {
-    global $prefs, $arc_twitter;
+    global $prefs, $arc_twitter, $app_mode;
+
     $prefix = trim(gps('arc_twitter_prefix'));
     $prefix = ($prefix) ? $prefix : $prefs['arc_twitter_prefix'];
     $suffix = trim(gps('arc_twitter_suffix'));
@@ -907,6 +909,11 @@ function arc_append_twitter($event, $step, $data, $rs1)
         $rs2 = '';
     }
 
+    if ($app_mode == 'async')
+    {
+		 send_script_response('$("#arc_twitter").remove();');
+		}
+
     if ($rs1['ID'] && $rs2['tweet_id']) {
         $content = tag(arc_Twitter::makeLinks($rs2['tweet']),'p');
         return $data.fieldset($content, 'Twitter update', 'arc_twitter');
@@ -914,7 +921,7 @@ function arc_append_twitter($event, $step, $data, $rs1)
         $var = gps('arc_tweet_this');
         $var = ($rs1['ID']&&!$var) ? 0 : $prefs['arc_twitter_tweet_default'];
         $content  = tag(yesnoRadio('arc_tweet_this', $var, '', 'arc_tweet_this'),'p');
-        $content .= tag(href('Options','#arc_twitter_options'),'p',' class="plain lever" style="margin-top:5px;"');
+        $content .= tag(href('Options','#arc_twitter_options', ' onclick="$(\'#arc_twitter_options\').toggle(); return false;"'),'p',' style="margin-top:5px;"');
         $content .= tag(tag(tag('Tweet prefix','label', ' for="arc_twitter_prefix"')
             .fInput('text','arc_twitter_prefix',$prefix,'edit','','','22','','arc_twitter_prefix'),'p')
             .tag(tag('Tweet suffix (eg #hashtags)','label', ' for="arc_twitter_suffix"')
