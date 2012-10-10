@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '3.2.1';
+$plugin['version'] = '3.3.0';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -828,17 +828,18 @@ function arc_admin_twitter($event,$step)
     // Prepare JavaScript to create Twitter update interface
 
     $js = '<script language="javascript" type="text/javascript">';
-    $js.= "$(document).ready(function(){
+    $js.= <<<JS
+    $(document).ready(function(){
             var counterStyle = 'font-weight:bold;float:right;font-size:2em;line-height:1.2em;';
             $('#tweetcount').attr('style', counterStyle+'color:#ccc;');
             $('#message').keyup(function() {
                 var count = 140-$('#message').val().length;
                 $('#tweetcount').html(count+''); // hack to force output of 0
-                if (count<0) {
+                /*if (count<0) {
                     $('input.publish').attr('disabled', 'disabled');
                 } else {
                     $('input.publish').attr('disabled', '');
-                }
+                }*/
                 if (count<0) {
                     $('#tweetcount').attr('style', counterStyle+'color:#f00;');
                 } else if (count<10) {
@@ -847,7 +848,8 @@ function arc_admin_twitter($event,$step)
                     $('#tweetcount').attr('style', counterStyle+'color:#ccc;');
                 }
             })
-        });";
+        });
+JS;
     $js.= "</script>";
 
     $out = '';
@@ -2380,12 +2382,14 @@ TXP Tweet provides access to your Twitter account through both the admin interfa
 
 Requirements:-
 
-* Textpattern 4.2+
+* Textpattern 4.5+
 * PHP 5 and cURL
 
 h2(section#arc_twitter_author). Author
 
 "Andy Carter":http://redhotchilliproject.com. For other Textpattern plugins by me visit my "Plugins page":http://redhotchilliproject.com/txp.
+
+Contributors: Andy Carter, Phil Wareham and Tommy Schmucker.
 
 Thanks to "Michael Manfre":http://manfre.net/ for inspiration for the article tweet part of this plugin based on his %(tag)mem_twitter% plugin.  Additional thanks to the great Textpattern community for helping to test this plugin and for suggesting new features. The OAuth part of the plugin is thanks to "Abraham Williams":http://twitter.com/abraham.
 
