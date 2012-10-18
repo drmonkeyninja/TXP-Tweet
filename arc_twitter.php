@@ -708,9 +708,9 @@ function arc_twitter_prefs($event,$step)
             
             $form = "<h2>Twitter account details</h2>"
 				."<span class='edit-label'>Twitter username</span>"
-				."<span class='edit-value'>".
+				."<span class='edit-value'>"
 				.($prefs['arc_twitter_user'] ? $user.' ('.href('Re-connect',$registerURL).')' : '<em>unknown</em>'.href('Connect to Twitter',$registerURL))
-                 ."</span>span>";
+                ."</span>";
             
             $form .= _arc_twitter_form_builder($fields);
             
