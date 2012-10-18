@@ -545,14 +545,14 @@ function arc_twitter_url_method_select($name, $val)
       'isgd' => 'Is.gd',
       'arc_twitter' => 'TXP Tweet',
       'smd' => 'smd_short_url');
-    return selectInput($name, $methods, $val);
+    return selectInput($name, $methods, $val, '', '', $name);
 }
 function arc_twitter_tab_select($name, $val)
 {
     $tabs = array('content' => 'Content',
         'extensions' => 'Extensions',
         '' => 'Hidden');
-    return selectInput($name, $tabs, $val);
+    return selectInput($name, $tabs, $val, '', '', $name);
 }
 // Provide interface for setting preferences
 function arc_twitter_prefs($event,$step)
@@ -719,75 +719,7 @@ function arc_twitter_prefs($event,$step)
 			$form .= '<p>'.fInput('submit', 'Submit', gTxt('save_button'), 'publish').'</p>';
 			
 			$html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
-            /*
-            $html.= startTable('list').form(
-                tr(
-                    tdcs(hed('Twitter account details', 2),2)
-                )
-                .tr(
-                    tda('<label for="arc_twitter_user">Twitter username</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(
-                        ($prefs['arc_twitter_user']) ?
-                            $user.' ('.href('Re-connect',$registerURL).')'
-                            : '<em>unknown</em>'
-                            .href('Connect to Twitter',$registerURL))
-                )
-                .tr(
-                    tdcs(hed('Tweet settings', 2),2)
-                )
-                .tr(
-                    tda('<label for="arc_twitter_prefix">Tweet prefix</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(fInput('text','arc_twitter_prefix',$prefix,'','','','','','arc_twitter_prefix'))
-                ).tr(
-                    tda('<label for="arc_twitter_suffix">Tweet suffix</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(fInput('text','arc_twitter_suffix',$suffix,'','','','','','arc_twitter_suffix'))
-                ).tr(
-                    tda('<label for="arc_twitter_tweet_default">Tweet articles by default</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(yesnoRadio('arc_twitter_tweet_default', $tweet_default, '', 'arc_twitter_tweet_default'))
-                ).tr(
-                    tda('<label for="arc_twitter_url_method">URL shortner</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(arc_twitter_url_method_select('arc_twitter_url_method',$url_method))
-                ).tr(
-                    tdcs(hed('TXP Tweet short URL', 2),2)
-                )
-                .tr(
-                    tda('<label for="arc_short_url">Enable TXP Tweet short URL redirect</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(yesnoRadio('arc_short_url', $short_url, '', 'arc_short_url')),
-                    ' id="arc_short_url-on_off"'
-                ).tr(
-                    tda('<label for="arc_short_site_url">TXP Tweet short site URL</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(fInput('text','arc_short_site_url',$short_site_url,'','','','','','arc_short_site_url')),
-                    ' id="arc_short_site_url-option"'
-                ).tr(
-                    tdcs(hed('Twitter tab', 2),2)
-                ).tr(
-                    tda('<label for="arc_twitter_tab">Location of Twitter tab</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(arc_twitter_tab_select('arc_twitter_tab',$tab))
-                ).tr(
-                    tdcs(hed('Cache', 2),2)
-                )
-                .tr(
-                    tda('<label for="arc_twitter_cache_dir">Cache directory</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(fInput('text','arc_twitter_cache_dir',$cache_dir,'','','','','','arc_twitter_cache_dir'))
-                )
-                .tr(
-                    tda(
-                        fInput('submit', 'Submit', gTxt('save_button'), 'publish')
-                        .n.sInput('prefs_save')
-                        .n.eInput('plugin_prefs.arc_twitter')
-                    , ' colspan="2" class="noline"')))
-                .endTable();
-                
-                */
+			
         } elseif ( $step!='register' ) {
             $registerURL = arc_twitter::callbackURL($event,'register');
             $html.= startTable('list').form(
@@ -854,7 +786,7 @@ function _arc_twitter_form_builder($fields) {
 			$type = isset($v['type']) ? $v['type'] : 'text';
 			
 			$form .= "<p class='$k'>"
-				."<span class='edit-label'><label for='$fk'>".$v['label']."</label></span>";
+				."<span class='edit-label'><label for='$k'>".$v['label']."</label></span>";
 				
 			switch ($type)  {
 				
