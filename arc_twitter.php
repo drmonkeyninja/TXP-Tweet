@@ -657,6 +657,63 @@ function arc_twitter_prefs($event,$step)
                 , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
                 , $prefs['arc_twitter_accessTokenSecret']);
             $registerURL = $twit->callbackURL($event,'register');
+            
+            // Define the fields ready to build the form
+            $fields = array(
+				'Tweet Settings' => array(
+					'arc_twitter_prefix' => array(
+						'label' => 'Tweet prefix',
+						'value' => $prefix
+					),
+					'arc_twitter_suffix' => array(
+						'label' => 'Tweet suffix',
+						'value' => $prefix
+					),
+					'arc_twitter_tweet_default' => array(
+						'label' => 'Tweet articles by default',
+						'type' => 'yesnoRadio',
+						'value' => $tweet_default
+					),
+					'arc_twitter_url_method' => array(
+						'label' => 'URL shortner',
+						'type' => 'arc_twitter_url_method_select',
+						'value' => $url_method
+					)
+				),
+				'TXP Tweet short URL' => array(
+					'arc_short_url' => array(
+						'label' => 'Enable TXP Tweet short URL redirect',
+						'type' => 'yesnoRadio',
+						'value' => $short_url
+					),
+					'arc_short_site_url' => array(
+						'label' => 'TXP Tweet short site URL',
+						'value' => $short_site_url
+					)
+				),
+				'Twitter Tab' => array(
+					'arc_twitter_tab' => array(
+						'label' => 'Location of Twitter tab',
+						'type' => 'arc_twitter_tab_select',
+						'value' => $tab
+					)
+				),
+				'Cache' => array(
+					'arc_twitter_cache_dir' => array(
+						'label' => 'Cache directory',
+						'value' => $cache_dir
+					)
+				)
+            );
+            
+            $form = _arc_twitter_form_builder($fields);
+            
+            $form .= sInput('prefs_save').n.eInput('plugin_prefs.arc_twitter');
+			
+			$form .= '<p>'.fInput('submit', 'Submit', gTxt('save_button'), 'publish').'</p>';
+			
+			$html = "<div class='plugin-column'>".form($form, " class='edit-form'")."</div>";
+            /*
             $html.= startTable('list').form(
                 tr(
                     tdcs(hed('Twitter account details', 2),2)
@@ -723,6 +780,8 @@ function arc_twitter_prefs($event,$step)
                         .n.eInput('plugin_prefs.arc_twitter')
                     , ' colspan="2" class="noline"')))
                 .endTable();
+                
+                */
         } elseif ( $step!='register' ) {
             $registerURL = arc_twitter::callbackURL($event,'register');
             $html.= startTable('list').form(
@@ -775,6 +834,53 @@ $(document).ready(function(){
 JS;
 
     echo $js.$html;
+}
+
+function _arc_twitter_form_builder($fields) {
+	
+	$form = '';
+	
+	foreach ($fields as $fk => $fv) {
+		
+		$form .= "<h2>$fk</h2>";
+            
+		foreach ($fv as $k => $v) {
+			
+			$type = isset($v['type']) ? $v['type'] : 'text';
+			
+			$form .= "<p class='$k'>"
+				."<span class='edit-label'><label for='$fk'>".$v['label']."</label>";
+				
+			switch ($type)  {
+				
+				case 'yesnoRadio':
+			
+					$form .= "<span class='edit-value'>".yesnoRadio($k, $v['value'], '', $k)."</span>";
+					break;
+					
+				case 'arc_twitter_tab_select':
+				
+					$form .= "<span class='edit-value'>".arc_twitter_tab_select($k, $v['value'])."</span>";
+					break;
+					
+				case 'arc_twitter_url_method_select':
+				
+					$form .= "<span class='edit-value'>".arc_twitter_url_method_select($k, $v['value'])."</span>";
+					break;
+					
+				default:
+			
+					$form .= "<span class='edit-value'>".fInput('text',$k,$v['value'],'','','','','',$k)."</span>";
+					break;
+				
+			}
+			
+			$form .= "</p>";
+		}
+	
+	}
+	
+	return $form;
 }
 
 // Add Twitter tab to Textpattern
