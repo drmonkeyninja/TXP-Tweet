@@ -580,8 +580,8 @@ function arc_twitter_prefs($event,$step)
     $html = '';
 
     if ($step=='register') { // OAuth registration process
-        $twit = new arc_twitter($arc_twitter_consumerKey
-            , $arc_twitter_consumerSecret);
+    
+        $twit = new arc_twitter($arc_twitter_consumerKey, $arc_twitter_consumerSecret);
 
         // Build a callback URL for Twitter to return to the next stage
         $callbackURL = $twit->callbackURL($event,'validate');
@@ -590,17 +590,13 @@ function arc_twitter_prefs($event,$step)
         $request_token = $request["oauth_token"];
         $request_token_secret = $request["oauth_token_secret"];
 
-        set_pref('arc_twitter_requestToken',$request_token
-            , 'arc_twitter',2);
-        set_pref('arc_twitter_requestTokenSecret',$request_token_secret
-            , 'arc_twitter',2);
+        set_pref('arc_twitter_requestToken',$request_token, 'arc_twitter',2);
+        set_pref('arc_twitter_requestTokenSecret',$request_token_secret, 'arc_twitter',2);
 
-        $html.= startTable('edit').
-                tr(td(
-                    ('<p>'.href('Sign-in to Twitter'
-                            ,$twit->getAuthorizeURL($request))
-                        .' and follow the instructions to allow TXP Tweet to use your account. If you are already signed in to Twitter then that account will be associated with TXP Tweet so you may need to sign out first if you want to use a different account.</p>')
-                )).endTable();
+		$html = "<div class='text-column'>"
+			."<p>".href('Sign-in to Twitter', $twit->getAuthorizeURL($request))." and follow the instructions to allow TXP Tweet to use your account. If you are already signed in to Twitter then that account will be associated with TXP Tweet so you may need to sign out first if you want to use a different account.</p>"
+			."</div>";
+			
     } elseif ($step=='validate') {
         $twit = new arc_twitter($arc_twitter_consumerKey
             , $arc_twitter_consumerSecret, $prefs['arc_twitter_requestToken']
