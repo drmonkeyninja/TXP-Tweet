@@ -721,19 +721,17 @@ function arc_twitter_prefs($event,$step)
 			$html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
 			
         } elseif ( $step!='register' ) {
+			
             $registerURL = arc_twitter::callbackURL($event,'register');
-            $html.= startTable('list').form(
-                tr(
-                    tdcs(hed('Twitter account details', 2),2)
-                )
-                .tr(
-                    tda('<label for="arc_twitter_user">Twitter username</label>',
-                        ' style="text-align: right; vertical-align: middle;"')
-                    .td(
-                        ('<em>unknown</em> ('
-                            .href('Connect to Twitter',$registerURL).')')
-                )))
-                .endTable();
+            
+            $form = "<h2>Twitter account details</h2>"
+				."<span class='edit-label'>Twitter username</span>"
+				."<span class='edit-value'><em>unknown</em> &mdash; "
+				.href('Connect to Twitter',$registerURL)
+                ."</span>";
+			
+			$html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
+            
         }
     }
 
