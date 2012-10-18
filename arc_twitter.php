@@ -706,7 +706,13 @@ function arc_twitter_prefs($event,$step)
 				)
             );
             
-            $form = _arc_twitter_form_builder($fields);
+            $form = "<h2>Twitter account details</h2>"
+				."<span class='edit-label'>Twitter username</span>"
+				."<span class='edit-value'>".
+				.($prefs['arc_twitter_user'] ? $user.' ('.href('Re-connect',$registerURL).')' : '<em>unknown</em>'.href('Connect to Twitter',$registerURL))
+                 ."</span>span>";
+            
+            $form .= _arc_twitter_form_builder($fields);
             
             $form .= sInput('prefs_save').n.eInput('plugin_prefs.arc_twitter');
 			
@@ -848,7 +854,7 @@ function _arc_twitter_form_builder($fields) {
 			$type = isset($v['type']) ? $v['type'] : 'text';
 			
 			$form .= "<p class='$k'>"
-				."<span class='edit-label'><label for='$fk'>".$v['label']."</label>";
+				."<span class='edit-label'><label for='$fk'>".$v['label']."</label></span>";
 				
 			switch ($type)  {
 				
