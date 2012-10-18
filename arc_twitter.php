@@ -693,7 +693,7 @@ function arc_twitter_prefs($event,$step)
 				),
 				'Twitter Tab' => array(
 					'arc_twitter_tab' => array(
-						'label' => 'Location of Twitter tab',
+						'label' => 'Location of tab',
 						'type' => 'arc_twitter_tab_select',
 						'value' => $tab
 					)
@@ -712,7 +712,7 @@ function arc_twitter_prefs($event,$step)
 			
 			$form .= '<p>'.fInput('submit', 'Submit', gTxt('save_button'), 'publish').'</p>';
 			
-			$html = "<div class='plugin-column'>".form($form, " class='edit-form'")."</div>";
+			$html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
             /*
             $html.= startTable('list').form(
                 tr(
@@ -803,18 +803,17 @@ function arc_twitter_prefs($event,$step)
     $js = <<<JS
 <script language="javascript" type="text/javascript">
 $(document).ready(function(){
-  var onoff = $('#arc_short_url-on_off');
+  var onoff = $('.arc_short_url');
   var arc_short_url_off = $('#arc_short_url-arc_short_url-0');
-  var url = $('#arc_short_site_url-option');
+  var url = $('.arc_short_site_url');
   var url_method = $('select[name="arc_twitter_url_method"]');
   
-  if (arc_short_url_off.attr('checked')==true
-  && $('option:selected', url_method).val()!='arc_twitter') {
+  if (arc_short_url_off.attr('checked')=='checked' && $('option:selected', url_method).val()!='arc_twitter') {
     url.hide();
   }
   $('input', onoff).change(function(){
     if ($('option:selected', url_method).val()!='arc_twitter') {
-      arc_short_url_off.attr('checked')==true ? url.hide() : url.show();
+      arc_short_url_off.attr('checked')=='checked' ? url.hide() : url.show();
     }
   });
   
@@ -826,7 +825,7 @@ $(document).ready(function(){
       onoff.toggle(); url.show();
     } else {
       onoff.toggle();
-      arc_short_url_off.attr('checked')==true ? url.hide() : url.show();
+      arc_short_url_off.attr('checked')=='checked' ? url.hide() : url.show();
     }
   })
 });
