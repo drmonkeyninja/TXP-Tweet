@@ -1231,7 +1231,7 @@ class arc_twitter extends TwitterOAuth {
         $text = preg_replace($url, "<a href='$0' rel='external'>$0</a>", $text);
         $url = '/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i';
         $text = preg_replace($url, "<a href='http://www.$2$3' rel='external'>www.$2$3</a>", $text);       
-        $text = preg_replace("/(^|\s)@([a-z_A-Z0-9]+)/",
+        $text = preg_replace("/(^|\s).?@([a-z_A-Z0-9]+)/",
             "$1@<a href='http://twitter.com/$2' rel='external'>$2</a>",$text);
         $text = preg_replace("/(^|\s)(\#([a-z_A-Z0-9:_-]+))/",
             "$1<a href='http://twitter.com/search?q=%23$3' rel='external'>$2</a>",$text);
