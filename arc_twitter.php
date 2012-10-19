@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '3.3.0';
+$plugin['version'] = '3.3.1';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -703,10 +703,10 @@ function arc_twitter_prefs($event,$step)
             );
             
             $form = "<h2>Twitter account details</h2>"
-				."<span class='edit-label'>Twitter username</span>"
+				."<p><span class='edit-label'>Twitter username</span>"
 				."<span class='edit-value'>"
 				.($prefs['arc_twitter_user'] ? $user.' ('.href('Re-connect',$registerURL).')' : '<em>unknown</em>'.href('Connect to Twitter',$registerURL))
-                ."</span>";
+                ."</span></p>";
             
             $form .= _arc_twitter_form_builder($fields);
             
@@ -773,7 +773,7 @@ function _arc_twitter_form_builder($fields) {
 	
 	foreach ($fields as $fk => $fv) {
 		
-		$form .= "<h2>$fk</h2>";
+		$form .= ($fk) ? "<h2>$fk</h2>" : '';
             
 		foreach ($fv as $k => $v) {
 			
@@ -783,6 +783,11 @@ function _arc_twitter_form_builder($fields) {
 				."<span class='edit-label'><label for='$k'>".$v['label']."</label></span>";
 				
 			switch ($type)  {
+				
+				case 'textarea':
+				
+					$form .= text_area($k, '50', '550', $v['value'], $k);
+					break;
 				
 				case 'yesnoRadio':
 			
@@ -867,16 +872,21 @@ function arc_admin_twitter($event,$step)
     $js = '<script language="javascript" type="text/javascript">';
     $js.= <<<JS
     $(document).ready(function(){
-            var counterStyle = 'font-weight:bold;float:right;font-size:2em;line-height:1.2em;';
+		var counter = $('<span>', {
+				'text' : '140',
+				'id' : 'tweetcount'
+			});
+		$('.message').append(counter);
+            var counterStyle = 'font-weight:bold;padding-left:.5em;font-size:2em;line-height:1.2em;';
             $('#tweetcount').attr('style', counterStyle+'color:#ccc;');
             $('#message').keyup(function() {
                 var count = 140-$('#message').val().length;
                 $('#tweetcount').html(count+''); // hack to force output of 0
-                /*if (count<0) {
-                    $('input.publish').attr('disabled', 'disabled');
+                if (count<0) {
+                    $('input.publish').prop('disabled', 'disabled');
                 } else {
-                    $('input.publish').attr('disabled', '');
-                }*/
+                    $('input.publish').prop('disabled', '');
+                }
                 if (count<0) {
                     $('#tweetcount').attr('style', counterStyle+'color:#f00;');
                 } else if (count<10) {
@@ -902,8 +912,33 @@ JS;
             .td(dLink('arc_admin_twitter','delete','id',$tweet->id,''))
             );
     }
+    
+    $fields = array(
+		'' => array(
+			'message' => array(
+				'label' => 'Update Twitter',
+				'type' => 'textarea',
+				'value' => ''
+			)
+		)
+    );
+    
+    $profile = '<img src="'.$twitterUser->profile_image_url.'" alt="Twitter avatar" style="float:left; margin-right: 1em" />'
+		.graf(href($twitterUser->name,$twitterUserURL),' style="font-size:1.2em;font-weight:bold;"')
+		.graf(href($twitterUser->friends_count.' following',$twitterUserURL.'/following')
+		.', '.href($twitterUser->followers_count.' followers',$twitterUserURL.'/followers')
+		.', '.href($twitterUser->statuses_count.' updates',$twitterUserURL));
+    
+    $form = _arc_twitter_form_builder($fields)
+		.eInput('arc_admin_twitter')
+		.sInput('tweet');
+	$form .= '<p>'.fInput('submit', 'Submit', gTxt('Update'), 'publish').'</p>';
+    
+    $html = "<div class='text-column'>".$profile."</div>"
+		."<br style='clear:both' />"
+		.form("<div class='plugin-column'>".$form."</div>".br);
 
-    $html = startTable('edit')
+   /* $html = startTable('edit')
             .tr(td(
             graf('<img src="'.$twitterUser->profile_image_url.'" alt="Twitter avatar" />'
             ,' style="float:left;padding:2px;"')
@@ -918,13 +953,13 @@ JS;
             .sInput('tweet').br
             .fInput('submit','update',gTxt('Update'),'publish')
         )))
-        .endTable();
+        .endTable();*/
 
     // Attach recent Twitter updates
 
-    $html.= startTable('list','','','','90%')
-        .$out
-        .endTable();
+    $html.= "<div class='txp-listtables'>"
+		.startTable('arc_twitter_timeline','','txp-list').$out.endTable()
+		."</div>";
 
     // Output JavaScript and HTML
 
