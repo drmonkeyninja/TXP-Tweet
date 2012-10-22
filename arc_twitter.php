@@ -714,7 +714,12 @@ function arc_twitter_prefs($event,$step)
 			
 			$form .= '<p>'.fInput('submit', 'Submit', gTxt('save_button'), 'publish').'</p>';
 			
-			$html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
+			$html = "<h1 class='txp-heading'>TXP Tweet</h1>"
+				."<p class='nav-tertiary'>"
+				."<a href='./?event=arc_admin_twitter' class='navlink'>Twitter</a><a href='./?event=plugin_prefs.arc_twitter' class='navlink-active'>Options</a>"
+				."</p>";
+			
+			$html .= form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
 			
         } elseif ( $step!='register' ) {
 			
@@ -933,27 +938,15 @@ JS;
 		.eInput('arc_admin_twitter')
 		.sInput('tweet');
 	$form .= '<p>'.fInput('submit', 'Submit', gTxt('Update'), 'publish').'</p>';
+				
+	$html = "<h1 class='txp-heading'>TXP Tweet</h1>"
+		."<p class='nav-tertiary'>"
+		."<a href='./?event=arc_admin_twitter' class='navlink-active'>Twitter</a><a href='./?event=plugin_prefs.arc_twitter' class='navlink'>Options</a>"
+		."</p>";
     
-    $html = "<div class='text-column'>".$profile."</div>"
+    $html .= "<div class='text-column'>".$profile."</div>"
 		."<br style='clear:both' />"
 		.form("<div class='plugin-column'>".$form."</div>".br);
-
-   /* $html = startTable('edit')
-            .tr(td(
-            graf('<img src="'.$twitterUser->profile_image_url.'" alt="Twitter avatar" />'
-            ,' style="float:left;padding:2px;"')
-            .graf(href($twitterUser->name,$twitterUserURL),' style="font-size:1.2em;font-weight:bold;"')
-            .graf(href($twitterUser->friends_count.' following',$twitterUserURL.'/following')
-            .', '.href($twitterUser->followers_count.' followers',$twitterUserURL.'/followers')
-            .', '.href($twitterUser->statuses_count.' updates',$twitterUserURL))))
-            .tr(td(form(
-            graf("Update Twitter...<span id='tweetcount' style='font-weight:bold;float:right;'>140</span>")
-            .text_area('message','50','550','','message')
-            .eInput('arc_admin_twitter')
-            .sInput('tweet').br
-            .fInput('submit','update',gTxt('Update'),'publish')
-        )))
-        .endTable();*/
 
     // Attach recent Twitter updates
 
