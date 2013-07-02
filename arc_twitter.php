@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '3.3.1';
+$plugin['version'] = '4.0';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://redhotchilliproject.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -123,7 +123,7 @@ function arc_twitter($atts)
   } else {  // turn off caching, not recommended other than for testing
     $twit->setCaching(false);
   }
-        
+
   switch ($timeline) {
     case 'home': case 'friends':
       $timeline = 'statuses/friends_timeline'; break;
@@ -131,32 +131,30 @@ function arc_twitter($atts)
       $timeline = 'statuses/mentions'; break;
     case 'user': default: $timeline = 'statuses/user_timeline';
   }
-  
+
   // Check that the fetch (Twitter's count attribute) is set correctly
   $fetch = (!$fetch || $fetch<$limit) ? $limit : $fetch;
 
   $out = array();
-  $xml = $twit->get($timeline, array(
+  $tweets = $twit->get($timeline, array(
       'screen_name'=>$user,
       'count'=>$fetch,
       'include_rts'=>$retweets,
       'exclude_replies'=>!$replies
     ));
-  if ($xml) {
-    $tweets = @$xml->xpath('/statuses/status');
-    if ($tweets) {
-      // Apply the display limit to the returned tweets
-      $tweets = array_slice($tweets, 0, $limit);
-      foreach ($tweets as $tweet) {
-        $time = strtotime(htmlentities($tweet->created_at));
-        $date = safe_strftime($dateformat,$time);
-        $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
-          .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
-      }
+    
+  if ($tweets) {
+    // Apply the display limit to the returned tweets
+    $tweets = array_slice($tweets, 0, $limit);
+    foreach ($tweets as $tweet) {
+      $time = strtotime(htmlentities($tweet->created_at));
+      $date = safe_strftime($dateformat,$time);
+      $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
+        .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
     }
+  }
 
     return doLabel($label, $labeltag).doWrap($out, $wraptag, $break, $class);
-  }
 
 }
 
@@ -186,8 +184,9 @@ function arc_twitter_search($atts)
         'class_user'   => __FUNCTION__.'-user'
     ),$atts));
 
-        $twit = new arc_Twitter($arc_twitter_consumerKey
-            , $arc_twitter_consumerSecret);
+        $twit = new arc_twitter($arc_twitter_consumerKey
+          , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
+          , $prefs['arc_twitter_accessTokenSecret']);
 
         if ($caching) {  // turn on caching, recommended (default)
             $twit->setCaching(true);
@@ -223,16 +222,19 @@ function arc_twitter_search($atts)
         }
 
         $out = array();
-        $tweets = $twit->get('http://search.twitter.com/search.atom?q='.$search
-            , array('rpp'=>$limit,'lang'=>$lang));
+        $results = $twit->get('search/tweets'
+            , array('q'=>$search,'count'=>$limit,'lang'=>$lang));
 
-        if ($tweets) { foreach ($tweets->entry as $tweet) {
-            preg_match("/(.*) \((.*)\)/",$tweet->author->name,$matches);
-            list($author,$uname,$name) = $matches;
-            $time = strtotime(htmlentities($tweet->published));
+        $tweets = $results->statuses;
+        if ($tweets) { foreach ($tweets as $tweet) {
+            // preg_match("/(.*) \((.*)\)/",$tweet->user->screen_name,$matches);
+            // list($author,$uname,$name) = $matches;
+            $uname = $tweet->user->screen_name;
+            $name = $tweet->user->name;
+            $time = strtotime(htmlentities($tweet->created_at));
             $date = safe_strftime($dateformat,$time);
-            $text = $tweet->title;
-            $out[] = tag(href(htmlentities($uname),$tweet->author->uri,
+            $text = $tweet->text;
+            $out[] = tag(href(htmlentities($uname),'http://twitter.com/' . $tweet->user->screen_name,
                 ' title="'.htmlentities($name).'"').': ','span'
                     ,' class="'.$class_user.'"')
                 .arc_Twitter::makeLinks(htmlentities($text, ENT_QUOTES,'UTF-8'))
@@ -244,7 +246,7 @@ function arc_twitter_search($atts)
 }
 
 function arc_twitter_tweet($atts) {
-    global $thisarticle; 
+    global $thisarticle;
 
     extract(lAtts(array(
       'id'        => $thisarticle['thisid'],
@@ -257,7 +259,7 @@ function arc_twitter_tweet($atts) {
         : safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet"
           , 'arc_twitter', "article_id={$id}");
     }
-    
+
     if ($tweet['tweet']) {
       return arc_Twitter::makeLinks(
         htmlentities($tweet['tweet'], ENT_QUOTES,'UTF-8'));
@@ -265,7 +267,7 @@ function arc_twitter_tweet($atts) {
 }
 
 function arc_twitter_tweet_url($atts, $thing=null) {
-    global $thisarticle,$prefs; 
+    global $thisarticle,$prefs;
 
     extract(lAtts(array(
       'id'      => $thisarticle['thisid'],
@@ -278,12 +280,12 @@ function arc_twitter_tweet_url($atts, $thing=null) {
       $tweet = safe_row("tweet_id"
         , 'arc_twitter', "article_id={$id}");
     }
-    
+
     if ($tweet['tweet_id']) {
       $url = "http://twitter.com/".$prefs['arc_twitter_user']."/status/".$tweet['tweet_id'];
       if ($thing===null) {
         return $url;
-      }      
+      }
       return href(parse($thing), $url,
         ($title ? ' title="'.$title.'"' : '')
         .($class ? ' class="'.$class.'"' : ''));
@@ -291,7 +293,7 @@ function arc_twitter_tweet_url($atts, $thing=null) {
 }
 
 function arc_twitter_tinyurl($atts, $thing=null) {
-    global $thisarticle; 
+    global $thisarticle;
 
     extract(lAtts(array(
       'id'      => $thisarticle['thisid'],
@@ -304,12 +306,12 @@ function arc_twitter_tinyurl($atts, $thing=null) {
       $tweet = safe_row("tinyurl"
         , 'arc_twitter', "article_id={$id}");
     }
-    
+
     if ($tweet['tinyurl']) {
       if ($thing===null) {
         return $tweet['tinyurl'];
       }
-      
+
       return href(parse($thing), $tweet['tinyurl'],
         ($title ? ' title="'.$title.'"' : '')
         .($class ? ' class="'.$class.'"' : ''));
@@ -324,21 +326,21 @@ function arc_twitter_widget_js($atts)
   extract(lAtts(array(
         'optimise' => false
     ),$atts));
-    
+
   return _arc_twitter_widget_js($optimise);
 }
 
 function _arc_twitter_widget_js($optimise=true)
 {
   global $arc_twitter;
-  
+
   // Check if widget JS has already been output
   if ($arc_twitter['widget_js']) return;
-  
+
   if ($optimise==false) {
     return '<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>';
   }
-  
+
   $js = <<<JS
 <script type="text/javascript">
 (function() {
@@ -398,7 +400,7 @@ function arc_twitter_retweet($atts, $thing=null)
 function arc_twitter_tweet_button($atts, $thing=null)
 {
     global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
-    global $thisarticle; 
+    global $thisarticle;
 
     extract(lAtts(array(
         'user'        => $prefs['arc_twitter_user'], // via user account
@@ -413,14 +415,14 @@ function arc_twitter_tweet_button($atts, $thing=null)
         'wraptag'     => '',
         'class'       => 'twitter-share-button'
     ),$atts));
-    
+
     $q = ''; // query string
-    
+
     if ($id=$thisarticle['thisid']) {
       // Fetch arc_twitter stuff to build tweet from
       $row = safe_row("REPLACE(tweet,CONCAT(' ',tinyurl),'') AS tweet,tinyurl"
         , 'arc_twitter', "article_id={$id}");
-    
+
       if ($url=='') {
         $url = ($url) ? $url : permlinkurl($thisarticle);
         $q = 'url='.urlencode($url);
@@ -438,28 +440,28 @@ function arc_twitter_tweet_button($atts, $thing=null)
     } elseif ($follow1||$follow2) {
       $q .= ($q ? '&amp;' : '').'related='.urlencode($follow1.$follow2);
     }
-    
+
     switch ($lang) {
       case 'fr': break; case 'de': break; case 'es': break; case 'jp': break;
       default:
         $lang = 'en';
     }
     $q .= ($q ? '&amp;' : '').'lang='.urlencode($lang);
-    
+
     switch ($count) {
       case 'none': break; case 'vertical': break;
       default:
         $count = 'horizontal';
     }
     $q .= ($q ? '&amp;' : '').'count='.urlencode($count);
-    
+
     $thing = ($thing===null) ? 'Tweet' : parse($thing);
-    
+
     $html = href($thing,'http://twitter.com/share?'.$q
       , ' class="'.$class.'"');
-    
+
     $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-    
+
     return $js.$html;
 }
 
@@ -469,7 +471,7 @@ function arc_twitter_tweet_button($atts, $thing=null)
 function arc_twitter_follow_button($atts, $thing=null)
 {
     global $prefs,$arc_twitter_consumerKey, $arc_twitter_consumerSecret;
-    global $thisarticle; 
+    global $thisarticle;
 
     extract(lAtts(array(
         'user'        => $prefs['arc_twitter_user'], // via user account
@@ -479,25 +481,25 @@ function arc_twitter_follow_button($atts, $thing=null)
         'optimise_js' => false,
         'class'       => 'twitter-follow-button'
     ),$atts));
-    
+
     $atts = ''; // data attributes
-    
+
     switch ($lang) {
       case 'fr': break; case 'de': break; case 'es': break; case 'jp': break;
       default:
         $lang = 'en';
     }
     $atts .= ' data-lang="'.urlencode($lang).'"';
-    
+
     $atts .= ' data-show-count="'.($count?'true':'false').'"';
-    
+
     $thing = ($thing===null) ? 'Follow @'.$user : parse($thing);
-    
+
     $html = href($thing,'http://twitter.com/'.urlencode($user)
       , ' class="'.$class.'"'.$atts);
-    
+
     $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-    
+
     return $js.$html;
 }
 
@@ -541,7 +543,7 @@ function arc_twitter_uninstall()
 }
 function arc_twitter_url_method_select($name, $val)
 {
-    $methods = array('tinyurl' => 'Tinyurl', 
+    $methods = array('tinyurl' => 'Tinyurl',
       'isgd' => 'Is.gd',
       'arc_twitter' => 'TXP Tweet',
       'smd' => 'smd_short_url');
@@ -580,7 +582,7 @@ function arc_twitter_prefs($event,$step)
     $html = '';
 
     if ($step=='register') { // OAuth registration process
-    
+
         $twit = new arc_twitter($arc_twitter_consumerKey, $arc_twitter_consumerSecret);
 
         // Build a callback URL for Twitter to return to the next stage
@@ -593,10 +595,10 @@ function arc_twitter_prefs($event,$step)
         set_pref('arc_twitter_requestToken',$request_token, 'arc_twitter',2);
         set_pref('arc_twitter_requestTokenSecret',$request_token_secret, 'arc_twitter',2);
 
-		$html = "<div class='text-column'>"
-			."<p>".href('Sign-in to Twitter', $twit->getAuthorizeURL($request))." and follow the instructions to allow TXP Tweet to use your account. If you are already signed in to Twitter then that account will be associated with TXP Tweet so you may need to sign out first if you want to use a different account.</p>"
-			."</div>";
-			
+    $html = "<div class='text-column'>"
+      ."<p>".href('Sign-in to Twitter', $twit->getAuthorizeURL($request))." and follow the instructions to allow TXP Tweet to use your account. If you are already signed in to Twitter then that account will be associated with TXP Tweet so you may need to sign out first if you want to use a different account.</p>"
+      ."</div>";
+
     } elseif ($step=='validate') {
         $twit = new arc_twitter($arc_twitter_consumerKey
             , $arc_twitter_consumerSecret, $prefs['arc_twitter_requestToken']
@@ -653,86 +655,86 @@ function arc_twitter_prefs($event,$step)
                 , $arc_twitter_consumerSecret, $prefs['arc_twitter_accessToken']
                 , $prefs['arc_twitter_accessTokenSecret']);
             $registerURL = $twit->callbackURL($event,'register');
-            
+
             // Define the fields ready to build the form
             $fields = array(
-				'Tweet Settings' => array(
-					'arc_twitter_prefix' => array(
-						'label' => 'Tweet prefix',
-						'value' => $prefix
-					),
-					'arc_twitter_suffix' => array(
-						'label' => 'Tweet suffix',
-						'value' => $prefix
-					),
-					'arc_twitter_tweet_default' => array(
-						'label' => 'Tweet articles by default',
-						'type' => 'yesnoRadio',
-						'value' => $tweet_default
-					),
-					'arc_twitter_url_method' => array(
-						'label' => 'URL shortner',
-						'type' => 'arc_twitter_url_method_select',
-						'value' => $url_method
-					)
-				),
-				'TXP Tweet short URL' => array(
-					'arc_short_url' => array(
-						'label' => 'Enable TXP Tweet short URL redirect',
-						'type' => 'yesnoRadio',
-						'value' => $short_url
-					),
-					'arc_short_site_url' => array(
-						'label' => 'TXP Tweet short site URL',
-						'value' => $short_site_url
-					)
-				),
-				'Twitter Tab' => array(
-					'arc_twitter_tab' => array(
-						'label' => 'Location of tab',
-						'type' => 'arc_twitter_tab_select',
-						'value' => $tab
-					)
-				),
-				'Cache' => array(
-					'arc_twitter_cache_dir' => array(
-						'label' => 'Cache directory',
-						'value' => $cache_dir
-					)
-				)
+        'Tweet Settings' => array(
+          'arc_twitter_prefix' => array(
+            'label' => 'Tweet prefix',
+            'value' => $prefix
+          ),
+          'arc_twitter_suffix' => array(
+            'label' => 'Tweet suffix',
+            'value' => $prefix
+          ),
+          'arc_twitter_tweet_default' => array(
+            'label' => 'Tweet articles by default',
+            'type' => 'yesnoRadio',
+            'value' => $tweet_default
+          ),
+          'arc_twitter_url_method' => array(
+            'label' => 'URL shortner',
+            'type' => 'arc_twitter_url_method_select',
+            'value' => $url_method
+          )
+        ),
+        'TXP Tweet short URL' => array(
+          'arc_short_url' => array(
+            'label' => 'Enable TXP Tweet short URL redirect',
+            'type' => 'yesnoRadio',
+            'value' => $short_url
+          ),
+          'arc_short_site_url' => array(
+            'label' => 'TXP Tweet short site URL',
+            'value' => $short_site_url
+          )
+        ),
+        'Twitter Tab' => array(
+          'arc_twitter_tab' => array(
+            'label' => 'Location of tab',
+            'type' => 'arc_twitter_tab_select',
+            'value' => $tab
+          )
+        ),
+        'Cache' => array(
+          'arc_twitter_cache_dir' => array(
+            'label' => 'Cache directory',
+            'value' => $cache_dir
+          )
+        )
             );
-            
+
             $form = "<h2>Twitter account details</h2>"
-				."<p><span class='edit-label'>Twitter username</span>"
-				."<span class='edit-value'>"
-				.($prefs['arc_twitter_user'] ? $user.' ('.href('Re-connect',$registerURL).')' : '<em>unknown</em>'.href('Connect to Twitter',$registerURL))
+        ."<p><span class='edit-label'>Twitter username</span>"
+        ."<span class='edit-value'>"
+        .($prefs['arc_twitter_user'] ? $user.' ('.href('Re-connect',$registerURL).')' : '<em>unknown</em>'.href('Connect to Twitter',$registerURL))
                 ."</span></p>";
-            
+
             $form .= _arc_twitter_form_builder($fields);
-            
+
             $form .= sInput('prefs_save').n.eInput('plugin_prefs.arc_twitter');
-			
-			$form .= '<p>'.fInput('submit', 'Submit', gTxt('save_button'), 'publish').'</p>';
-			
-			$html = "<h1 class='txp-heading'>TXP Tweet</h1>"
-				."<p class='nav-tertiary'>"
-				."<a href='./?event=arc_admin_twitter' class='navlink'>Twitter</a><a href='./?event=plugin_prefs.arc_twitter' class='navlink-active'>Options</a>"
-				."</p>";
-			
-			$html .= form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
-			
+
+      $form .= '<p>'.fInput('submit', 'Submit', gTxt('save_button'), 'publish').'</p>';
+
+      $html = "<h1 class='txp-heading'>TXP Tweet</h1>"
+        ."<p class='nav-tertiary'>"
+        ."<a href='./?event=arc_admin_twitter' class='navlink'>Twitter</a><a href='./?event=plugin_prefs.arc_twitter' class='navlink-active'>Options</a>"
+        ."</p>";
+
+      $html .= form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
+
         } elseif ( $step!='register' ) {
-			
+
             $registerURL = arc_twitter::callbackURL($event,'register');
-            
+
             $form = "<h2>Twitter account details</h2>"
-				."<span class='edit-label'>Twitter username</span>"
-				."<span class='edit-value'><em>unknown</em> &mdash; "
-				.href('Connect to Twitter',$registerURL)
+        ."<span class='edit-label'>Twitter username</span>"
+        ."<span class='edit-value'><em>unknown</em> &mdash; "
+        .href('Connect to Twitter',$registerURL)
                 ."</span>";
-			
-			$html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
-            
+
+      $html = form("<div class='plugin-column'>".$form."</div>", " class='edit-form'");
+
         }
     }
 
@@ -744,7 +746,7 @@ $(document).ready(function(){
   var arc_short_url_off = $('#arc_short_url-arc_short_url-0');
   var url = $('.arc_short_site_url');
   var url_method = $('select[name="arc_twitter_url_method"]');
-  
+
   if (arc_short_url_off.attr('checked')=='checked' && $('option:selected', url_method).val()!='arc_twitter') {
     url.hide();
   }
@@ -753,7 +755,7 @@ $(document).ready(function(){
       arc_short_url_off.attr('checked')=='checked' ? url.hide() : url.show();
     }
   });
-  
+
   if ($('option:selected', url_method).val()=='arc_twitter') {
     onoff.hide(); url.show();
   }
@@ -773,55 +775,55 @@ JS;
 }
 
 function _arc_twitter_form_builder($fields) {
-	
-	$form = '';
-	
-	foreach ($fields as $fk => $fv) {
-		
-		$form .= ($fk) ? "<h2>$fk</h2>" : '';
-            
-		foreach ($fv as $k => $v) {
-			
-			$type = isset($v['type']) ? $v['type'] : 'text';
-			
-			$form .= "<p class='$k'>"
-				."<span class='edit-label'><label for='$k'>".$v['label']."</label></span>";
-				
-			switch ($type)  {
-				
-				case 'textarea':
-				
-					$form .= text_area($k, '50', '550', $v['value'], $k);
-					break;
-				
-				case 'yesnoRadio':
-			
-					$form .= "<span class='edit-value'>".yesnoRadio($k, $v['value'], '', $k)."</span>";
-					break;
-					
-				case 'arc_twitter_tab_select':
-				
-					$form .= "<span class='edit-value'>".arc_twitter_tab_select($k, $v['value'])."</span>";
-					break;
-					
-				case 'arc_twitter_url_method_select':
-				
-					$form .= "<span class='edit-value'>".arc_twitter_url_method_select($k, $v['value'])."</span>";
-					break;
-					
-				default:
-			
-					$form .= "<span class='edit-value'>".fInput('text',$k,$v['value'],'','','','','',$k)."</span>";
-					break;
-				
-			}
-			
-			$form .= "</p>";
-		}
-	
-	}
-	
-	return $form;
+
+  $form = '';
+
+  foreach ($fields as $fk => $fv) {
+
+    $form .= ($fk) ? "<h2>$fk</h2>" : '';
+
+    foreach ($fv as $k => $v) {
+
+      $type = isset($v['type']) ? $v['type'] : 'text';
+
+      $form .= "<p class='$k'>"
+        ."<span class='edit-label'><label for='$k'>".$v['label']."</label></span>";
+
+      switch ($type)  {
+
+        case 'textarea':
+
+          $form .= text_area($k, '50', '550', $v['value'], $k);
+          break;
+
+        case 'yesnoRadio':
+
+          $form .= "<span class='edit-value'>".yesnoRadio($k, $v['value'], '', $k)."</span>";
+          break;
+
+        case 'arc_twitter_tab_select':
+
+          $form .= "<span class='edit-value'>".arc_twitter_tab_select($k, $v['value'])."</span>";
+          break;
+
+        case 'arc_twitter_url_method_select':
+
+          $form .= "<span class='edit-value'>".arc_twitter_url_method_select($k, $v['value'])."</span>";
+          break;
+
+        default:
+
+          $form .= "<span class='edit-value'>".fInput('text',$k,$v['value'],'','','','','',$k)."</span>";
+          break;
+
+      }
+
+      $form .= "</p>";
+    }
+
+  }
+
+  return $form;
 }
 
 // Add Twitter tab to Textpattern
@@ -835,10 +837,9 @@ function arc_admin_twitter($event,$step)
 
     $twit->cacheDir($prefs['arc_twitter_cache_dir']);
 
-    $xml = $twit->get('users/show'
+    $data = $twit->get('users/show'
         , array('screen_name'=>$prefs['arc_twitter_user']));
-    $twitterUser = @$xml->xpath('/user');
-    $twitterUser = $twitterUser[0];
+    $twitterUser = $data;
     $twitterUserURL = 'http://www.twitter.com/'.$twitterUser->screen_name;
 
     if ($step=="tweet") { // post an update to Twitter
@@ -877,11 +878,11 @@ function arc_admin_twitter($event,$step)
     $js = '<script language="javascript" type="text/javascript">';
     $js.= <<<JS
     $(document).ready(function(){
-		var counter = $('<span>', {
-				'text' : '140',
-				'id' : 'tweetcount'
-			});
-		$('.message').append(counter);
+    var counter = $('<span>', {
+        'text' : '140',
+        'id' : 'tweetcount'
+      });
+    $('.message').append(counter);
             var counterStyle = 'font-weight:bold;padding-left:.5em;font-size:2em;line-height:1.2em;';
             $('#tweetcount').attr('style', counterStyle+'color:#ccc;');
             $('#message').keyup(function() {
@@ -905,9 +906,8 @@ JS;
     $js.= "</script>";
 
     $out = '';
-    $xml = $twit->get('statuses/user_timeline'
+    $tweets = $twit->get('statuses/user_timeline'
         , array('screen_name'=>$prefs['arc_twitter_user'],'count'=>25));
-    $tweets = @$xml->xpath('/statuses/status');
     if ($tweets) foreach ($tweets as $tweet) {
         $time = strtotime(htmlentities($tweet->created_at));
         $date = safe_strftime($prefs['archive_dateformat'],$time);
@@ -917,42 +917,42 @@ JS;
             .td(dLink('arc_admin_twitter','delete','id',$tweet->id,''))
             );
     }
-    
+
     $fields = array(
-		'' => array(
-			'message' => array(
-				'label' => 'Update Twitter',
-				'type' => 'textarea',
-				'value' => ''
-			)
-		)
+    '' => array(
+      'message' => array(
+        'label' => 'Update Twitter',
+        'type' => 'textarea',
+        'value' => ''
+      )
+    )
     );
-    
+
     $profile = '<img src="'.$twitterUser->profile_image_url.'" alt="Twitter avatar" style="float:left; margin-right: 1em" />'
-		.graf(href($twitterUser->name,$twitterUserURL),' style="font-size:1.2em;font-weight:bold;"')
-		.graf(href($twitterUser->friends_count.' following',$twitterUserURL.'/following')
-		.', '.href($twitterUser->followers_count.' followers',$twitterUserURL.'/followers')
-		.', '.href($twitterUser->statuses_count.' updates',$twitterUserURL));
-    
+    .graf(href($twitterUser->name,$twitterUserURL),' style="font-size:1.2em;font-weight:bold;"')
+    .graf(href($twitterUser->friends_count.' following',$twitterUserURL.'/following')
+    .', '.href($twitterUser->followers_count.' followers',$twitterUserURL.'/followers')
+    .', '.href($twitterUser->statuses_count.' updates',$twitterUserURL));
+
     $form = _arc_twitter_form_builder($fields)
-		.eInput('arc_admin_twitter')
-		.sInput('tweet');
-	$form .= '<p>'.fInput('submit', 'Submit', gTxt('Update'), 'publish').'</p>';
-				
-	$html = "<h1 class='txp-heading'>TXP Tweet</h1>"
-		."<p class='nav-tertiary'>"
-		."<a href='./?event=arc_admin_twitter' class='navlink-active'>Twitter</a><a href='./?event=plugin_prefs.arc_twitter' class='navlink'>Options</a>"
-		."</p>";
-    
+    .eInput('arc_admin_twitter')
+    .sInput('tweet');
+  $form .= '<p>'.fInput('submit', 'Submit', gTxt('Update'), 'publish').'</p>';
+
+  $html = "<h1 class='txp-heading'>TXP Tweet</h1>"
+    ."<p class='nav-tertiary'>"
+    ."<a href='./?event=arc_admin_twitter' class='navlink-active'>Twitter</a><a href='./?event=plugin_prefs.arc_twitter' class='navlink'>Options</a>"
+    ."</p>";
+
     $html .= "<div class='text-column'>".$profile."</div>"
-		."<br style='clear:both' />"
-		.form("<div class='plugin-column'>".$form."</div>".br);
+    ."<br style='clear:both' />"
+    .form("<div class='plugin-column'>".$form."</div>".br);
 
     // Attach recent Twitter updates
 
     $html.= "<div class='txp-listtables'>"
-		.startTable('arc_twitter_timeline','','txp-list').$out.endTable()
-		."</div>";
+    .startTable('arc_twitter_timeline','','txp-list').$out.endTable()
+    ."</div>";
 
     // Output JavaScript and HTML
 
@@ -978,8 +978,8 @@ function arc_append_twitter($event, $step, $data, $rs1)
 
     if ($app_mode == 'async')
     {
-		 send_script_response('$("#arc_twitter").remove();');
-		}
+     send_script_response('$("#arc_twitter").remove();');
+    }
 
     if ($rs1['ID'] && $rs2['tweet_id']) {
         $content = tag(arc_Twitter::makeLinks($rs2['tweet']),'p');
@@ -1018,7 +1018,7 @@ function arc_article_tweet($event,$step)
 
         if ($article && gps('arc_tweet_this')) { // tweet article
 
-            // Need to manually update the 'URL only title' before building the 
+            // Need to manually update the 'URL only title' before building the
             // URL
             $article['url_title'] = gps('url_title');
             // Make short URL
@@ -1099,10 +1099,10 @@ function arc_shorten_url($url, $method='', $atts=array())
     case 'smd': // create a shortened URL using SMD Short URL
       return ($atts['id']) ? hu.$atts['id'] : false; break;
     case 'arc_twitter': // native URL shortening
-    
+
       return ($atts['id']) ? PROTOCOL.$prefs['arc_short_site_url'].'/'.$atts['id'] : false;
       break;
-      
+
     case 'isgd':
 
       $u = 'http://is.gd/api.php?longurl='.urlencode($url);
@@ -1139,19 +1139,19 @@ function arc_shorten_url($url, $method='', $atts=array())
  */
 function arc_short_url_redirect($event, $step) {
   global $prefs;
-  
+
   $have_id = 0;
-  
+
   // Check if there is an available short site url and if it is being used in
   // this instance
-  $short_site_url = $prefs['arc_short_site_url'];  
+  $short_site_url = $prefs['arc_short_site_url'];
   if ($short_site_url) {
     $short_site_url = PROTOCOL.$short_site_url.'/';
     $url_parts = parse_url($short_site_url);
     $re = '#^'.$url_parts['path'].'([0-9].*)#';
     $have_id = preg_match($re, $_SERVER['REQUEST_URI'], $m);
   }
-  
+
   // Fall back to standard site url (smd_short_url behaviour)
   if ($have_id) {
     $url_parts = parse_url(hu);
@@ -1161,29 +1161,29 @@ function arc_short_url_redirect($event, $step) {
 
   // Do the redirect if we've got an article id
   if ($have_id) {
-	  $id = $m[1];
-	  $permlink = permlinkurl_id($id);
+    $id = $m[1];
+    $permlink = permlinkurl_id($id);
 
-	  if ($permlink) {
-		  ob_end_clean();
+    if ($permlink) {
+      ob_end_clean();
 
-		  // Stupid, over the top header setting for IE
-		  header("Status: 301");
-		  header("HTTP/1.0 301 Moved Permanently");
-		  header("Location: ".$permlink, TRUE, 301);
+      // Stupid, over the top header setting for IE
+      header("Status: 301");
+      header("HTTP/1.0 301 Moved Permanently");
+      header("Location: ".$permlink, TRUE, 301);
 
-		  // In case the header() method fails, fall back on a classic redirect
-		  echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
-		    .$permlink.'"></head><body></body></html>';
-		  die();
-	  }
+      // In case the header() method fails, fall back on a classic redirect
+      echo '<html><head><META HTTP-EQUIV="Refresh" CONTENT="0;URL='
+        .$permlink.'"></head><body></body></html>';
+      die();
+    }
   }
-  
+
 }
 
 // Auto enable plugin on install (original idea by Michael Manfre)
 function _arc_twitter_auto_enable($event, $step, $prefix='arc_twitter')
-{ 
+{
   $plugin = substr($event, strlen('plugin_lifecycle.'));
   if (strncmp($plugin, $prefix, strlen($prefix)) == 0)
   {
@@ -1206,7 +1206,7 @@ class arc_twitter extends TwitterOAuth {
     {
         parent::__construct($consumer_key, $consumer_secret, $oauth_token
             , $oauth_token_secret);
-        $this->format = 'xml';
+        $this->format = 'json';
         $this->timeout = 15;
         $this->connecttimeout = 15;
     }
@@ -1220,15 +1220,15 @@ class arc_twitter extends TwitterOAuth {
     // create Twitter and external links in text
     public static function makeLinks($text)
     {
-		
-		$replacements = array(
-			'/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i' => "<a href='$0' rel='external'>$0</a>",
-			'/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i' => "<a href='http://www.$2$3' rel='external'>www.$2$3</a>",
-			"/(^|\s).?@([a-z_A-Z0-9]+)/" => "$1@<a href='http://twitter.com/$2' rel='external'>$2</a>",
-			"/(^|\s)(\#([a-z_A-Z0-9:_-]+))/" => "$1<a href='http://twitter.com/search?q=%23$3' rel='external'>$2</a>"
-		);
-        return preg_replace(array_keys($replacements), array_values($replacements), $text);
-        
+        $url = '/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i';
+        $text = preg_replace($url, "<a href='$0' rel='external'>$0</a>", $text);
+        $url = '/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i';
+        $text = preg_replace($url, "<a href='http://www.$2$3' rel='external'>www.$2$3</a>", $text);
+        $text = preg_replace("/(^|\s).?@([a-z_A-Z0-9]+)/",
+            "$1@<a href='http://twitter.com/$2' rel='external'>$2</a>",$text);
+        $text = preg_replace("/(^|\s)(\#([a-z_A-Z0-9:_-]+))/",
+            "$1<a href='http://twitter.com/search?q=%23$3' rel='external'>$2</a>",$text);
+        return $text;
   }
 
     public function get($url, $params = array())
@@ -1236,44 +1236,44 @@ class arc_twitter extends TwitterOAuth {
         $api_url = md5($url.urlencode(serialize($params)));
         $data = '';
 
-        if ($this->_cache) { // check for cached xml
+        if ($this->_cache) { // check for cached json
 
             $data = $this->_retrieveCache($api_url);
 
         }
         if (empty($data)) {
-            $data = parent::get($url, $params);
-            if ($this->http_code===200 && $xml=simplexml_load_string($data)) { // save cache
+            $data = parent::get($url, $params); // data already json_decode'd
+            if ($this->http_code===200 && $encoded_data=json_encode($data)) { // save cache
                 $file = $this->_cache_dir.'/'.$api_url;
-                file_put_contents($file,$data,LOCK_EX);
-                return $xml;
+                file_put_contents($file,$encoded_data,LOCK_EX);
+                return $data;
             } else { // failed to retrieve data from Twitter
 
-                if ($this->_cache) { // attempt to force cached xml return
+                if ($this->_cache) { // attempt to force cached json return
 
                     $data = $this->_retrieveCache($api_url,true);
-                    if ($data) return @simplexml_load_string($data);
+                    if ($data) return json_decode($data);
 
                 }
 
                 return false;
 
             }
-        } else { // return cached xml
-            return @simplexml_load_string($data);
+        } else { // return cached json
+            return json_decode($data);
         }
     } //end get()
 
     function post($url, $params = array())
     {
         $data = parent::post($url,$params);
-        return simplexml_load_string($data);
+        return $data;
     }
 
     function delete($url, $params = array())
     {
         $data = parent::delete($url,$params);
-        return simplexml_load_string($data);
+        return $data;
     }
 
     // Cache methods
@@ -1329,11 +1329,11 @@ class TwitterOAuth {
   /* Contains the last API call. */
   public $url;
   /* Set up the API root URL. */
-  public $host = "https://api.twitter.com/1/";
+  public $host = "https://api.twitter.com/1.1/";
   /* Set timeout default. */
   public $timeout = 30;
   /* Set connect timeout. */
-  public $connecttimeout = 30;
+  public $connecttimeout = 30; 
   /* Verify SSL Cert. */
   public $ssl_verifypeer = FALSE;
   /* Respons format. */
@@ -1347,15 +1347,12 @@ class TwitterOAuth {
   /* Immediately retry the API call if the response was not successful. */
   //public $retry = TRUE;
 
-
-
-
   /**
    * Set API URLS
    */
   function accessTokenURL()  { return 'https://api.twitter.com/oauth/access_token'; }
-  function authenticateURL() { return 'https://twitter.com/oauth/authenticate'; }
-  function authorizeURL()    { return 'https://twitter.com/oauth/authorize'; }
+  function authenticateURL() { return 'https://api.twitter.com/oauth/authenticate'; }
+  function authorizeURL()    { return 'https://api.twitter.com/oauth/authorize'; }
   function requestTokenURL() { return 'https://api.twitter.com/oauth/request_token'; }
 
   /**
@@ -1383,11 +1380,9 @@ class TwitterOAuth {
    *
    * @returns a key/value array containing oauth_token and oauth_token_secret
    */
-  function getRequestToken($oauth_callback = NULL) {
+  function getRequestToken($oauth_callback) {
     $parameters = array();
-    if (!empty($oauth_callback)) {
-      $parameters['oauth_callback'] = $oauth_callback;
-    }
+    $parameters['oauth_callback'] = $oauth_callback; 
     $request = $this->oAuthRequest($this->requestTokenURL(), 'GET', $parameters);
     $token = OAuthUtil::parse_parameters($request);
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
@@ -1419,11 +1414,9 @@ class TwitterOAuth {
    *                "user_id" => "9436992",
    *                "screen_name" => "abraham")
    */
-  function getAccessToken($oauth_verifier = FALSE) {
+  function getAccessToken($oauth_verifier) {
     $parameters = array();
-    if (!empty($oauth_verifier)) {
-      $parameters['oauth_verifier'] = $oauth_verifier;
-    }
+    $parameters['oauth_verifier'] = $oauth_verifier;
     $request = $this->oAuthRequest($this->accessTokenURL(), 'GET', $parameters);
     $token = OAuthUtil::parse_parameters($request);
     $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
@@ -1438,7 +1431,7 @@ class TwitterOAuth {
    *                "user_id" => "9436992",
    *                "screen_name" => "abraham",
    *                "x_auth_expires" => "0")
-   */
+   */  
   function getXAuthToken($username, $password) {
     $parameters = array();
     $parameters['x_auth_username'] = $username;
@@ -1460,7 +1453,7 @@ class TwitterOAuth {
     }
     return $response;
   }
-
+  
   /**
    * POST wrapper for oAuthRequest.
    */
@@ -1554,9 +1547,12 @@ class TwitterOAuth {
     return strlen($header);
   }
 }
-
-class OAuthException extends Exception {
-  // pass
+/* Generic exception class
+ */
+if (!class_exists('OAuthException')) {
+  class OAuthException extends Exception {
+    // pass
+  }
 }
 
 class OAuthConsumer {
@@ -1642,9 +1638,9 @@ abstract class OAuthSignatureMethod {
 }
 
 /**
- * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104]
- * where the Signature Base String is the text and the key is the concatenated values (each first
- * encoded per Parameter Encoding) of the Consumer Secret and Token Secret, separated by an '&'
+ * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104] 
+ * where the Signature Base String is the text and the key is the concatenated values (each first 
+ * encoded per Parameter Encoding) of the Consumer Secret and Token Secret, separated by an '&' 
  * character (ASCII code 38) even if empty.
  *   - Chapter 9.2 ("HMAC-SHA1")
  */
@@ -1670,7 +1666,7 @@ class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
 }
 
 /**
- * The PLAINTEXT method does not provide any security protection and SHOULD only be used
+ * The PLAINTEXT method does not provide any security protection and SHOULD only be used 
  * over a secure channel such as HTTPS. It does not use the Signature Base String.
  *   - Chapter 9.4 ("PLAINTEXT")
  */
@@ -1680,8 +1676,8 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
   }
 
   /**
-   * oauth_signature is set to the concatenated encoded values of the Consumer Secret and
-   * Token Secret, separated by a '&' character (ASCII code 38), even if either secret is
+   * oauth_signature is set to the concatenated encoded values of the Consumer Secret and 
+   * Token Secret, separated by a '&' character (ASCII code 38), even if either secret is 
    * empty. The result MUST be encoded again.
    *   - Chapter 9.4.1 ("Generating Signatures")
    *
@@ -1703,10 +1699,10 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
 }
 
 /**
- * The RSA-SHA1 signature method uses the RSASSA-PKCS1-v1_5 signature algorithm as defined in
- * [RFC3447] section 8.2 (more simply known as PKCS#1), using SHA-1 as the hash function for
- * EMSA-PKCS1-v1_5. It is assumed that the Consumer has provided its RSA public key in a
- * verified way to the Service Provider, in a manner which is beyond the scope of this
+ * The RSA-SHA1 signature method uses the RSASSA-PKCS1-v1_5 signature algorithm as defined in 
+ * [RFC3447] section 8.2 (more simply known as PKCS#1), using SHA-1 as the hash function for 
+ * EMSA-PKCS1-v1_5. It is assumed that the Consumer has provided its RSA public key in a 
+ * verified way to the Service Provider, in a manner which is beyond the scope of this 
  * specification.
  *   - Chapter 9.3 ("RSA-SHA1")
  */
@@ -2108,7 +2104,7 @@ class OAuthServer {
   private function get_version(&$request) {
     $version = $request->get_parameter("oauth_version");
     if (!$version) {
-      // Service Providers MUST assume the protocol version to be 1.0 if this parameter is not present.
+      // Service Providers MUST assume the protocol version to be 1.0 if this parameter is not present. 
       // Chapter 7.0 ("Accessing Protected Ressources")
       $version = '1.0';
     }
@@ -2208,7 +2204,7 @@ class OAuthServer {
       throw new OAuthException(
         'Missing timestamp parameter. The parameter is required'
       );
-
+    
     // verify that timestamp is recentish
     $now = time();
     if (abs($now - $timestamp) > $this->timestamp_threshold) {
