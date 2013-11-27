@@ -126,9 +126,9 @@ function arc_twitter($atts)
 
   switch ($timeline) {
     case 'home': case 'friends':
-      $timeline = 'statuses/friends_timeline'; break;
+      $timeline = 'home_timeline'; break;
     case 'mentions':
-      $timeline = 'statuses/mentions'; break;
+      $timeline = 'statuses/mentions_timeline'; break;
     case 'user': default: $timeline = 'statuses/user_timeline';
   }
 
@@ -516,7 +516,7 @@ function arc_twitter_install()
     $sql = "CREATE TABLE IF NOT EXISTS ".PFX."arc_twitter ";
     $sql.= "(arc_twitterid INTEGER AUTO_INCREMENT PRIMARY KEY,
         article_id INTEGER(11),
-        tweet_id BIGINT(20),
+        tweet_id VARCHAR(100),
         tweet VARCHAR(140),
         tinyurl VARCHAR(30));";
 
@@ -665,7 +665,7 @@ function arc_twitter_prefs($event,$step)
           ),
           'arc_twitter_suffix' => array(
             'label' => 'Tweet suffix',
-            'value' => $prefix
+            'value' => $suffix
           ),
           'arc_twitter_tweet_default' => array(
             'label' => 'Tweet articles by default',
@@ -861,7 +861,7 @@ function arc_admin_twitter($event,$step)
 
         $id = strip_tags(gps('id'));
         if ($id) {
-            $twit->delete('statuses/destroy'.$id);
+            $twit->delete('statuses/destroy/'.$id);
             safe_delete('arc_twitter',"tweet_id = $id");
         }
 
@@ -914,7 +914,7 @@ JS;
         $out.= tr(td($date,'span')
             .td(arc_Twitter::makeLinks(htmlentities($tweet->text
                 , ENT_QUOTES,'UTF-8')))
-            .td(dLink('arc_admin_twitter','delete','id',$tweet->id,''))
+            .td(dLink('arc_admin_twitter','delete','id',$tweet->id_str,''))
             );
     }
 
@@ -1053,7 +1053,7 @@ function arc_article_tweet($event,$step)
                 , $prefs['arc_twitter_accessTokenSecret']);
             $result = $twit->post('statuses/update', array('status' => $tweet));
 
-            $tweet_id = (is_object($result)) ? $result[0]->id : 0;
+            $tweet_id = (is_object($result)) ? $result->id_str : 0;
 
             if ($tweet_id) {
 
