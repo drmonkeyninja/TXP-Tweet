@@ -1,9 +1,9 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '4.0';
+$plugin['version'] = '4.1';
 $plugin['author'] = 'Andy Carter';
-$plugin['author_uri'] = 'http://redhotchilliproject.com/';
+$plugin['author_uri'] = 'http://andy-carter.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
 $plugin['order'] = '5';
 $plugin['type'] = '5';
@@ -2448,7 +2448,7 @@ Requirements:-
 
 h2(section#arc_twitter_author). Author
 
-"Andy Carter":http://redhotchilliproject.com. For other Textpattern plugins by me visit my "Plugins page":http://redhotchilliproject.com/txp.
+"Andy Carter":http://andy-carter.com. For other Textpattern plugins by me visit my "Plugins page":http://andy-carter.com/txp.
 
 Contributors: Andy Carter, Phil Wareham and Tommy Schmucker.
 
