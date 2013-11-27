@@ -1,9 +1,9 @@
 <?php
 
 $plugin['name'] = 'arc_twitter_intents';
-$plugin['version'] = '1.1';
+$plugin['version'] = '1.2';
 $plugin['author'] = 'Andy Carter';
-$plugin['author_uri'] = 'http://redhotchilliproject.com/';
+$plugin['author_uri'] = 'http://andy-carter.com/';
 $plugin['description'] = 'Twitter Web Intents';
 $plugin['order'] = '5';
 $plugin['type'] = '0';
