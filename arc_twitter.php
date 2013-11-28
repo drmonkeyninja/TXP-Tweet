@@ -98,6 +98,7 @@ function arc_twitter($atts)
     'timeline'  => 'user',
     'limit'     => '10',
     'fetch'     => 0,
+    'full_urls' => false,
     'retweets'  => false,
     'replies'   => true,
     'dateformat'=> $prefs['archive_dateformat'],
@@ -149,7 +150,18 @@ function arc_twitter($atts)
     foreach ($tweets as $tweet) {
       $time = strtotime(htmlentities($tweet->created_at));
       $date = safe_strftime($dateformat,$time);
-      $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'))
+      $tweetText = $tweet->text;
+      if ($full_urls && isset($tweet->entities->urls)) {
+        foreach ($tweet->entities->urls as $url) {
+          $links[$url->url] = $url->expanded_url;
+        }
+        $tweetText = str_replace(
+          array_keys($links), 
+          array_values($links), 
+          $tweetText
+        );
+      }
+      $out[] = arc_Twitter::makeLinks(htmlentities($tweetText, ENT_QUOTES,'UTF-8'))
         .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
     }
   }
