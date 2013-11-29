@@ -150,18 +150,17 @@ function arc_twitter($atts)
     foreach ($tweets as $tweet) {
       $time = strtotime(htmlentities($tweet->created_at));
       $date = safe_strftime($dateformat,$time);
-      $tweetText = $tweet->text;
-      if ($full_urls && isset($tweet->entities->urls)) {
+      $links = false;
+      if (isset($tweet->entities->urls)) {
+      	$links = array();
         foreach ($tweet->entities->urls as $url) {
-          $links[$url->url] = $url->expanded_url;
+          $links[$url->url] = array(
+            'expanded_url' => $url->expanded_url,
+            'display_url' => $url->display_url
+          );
         }
-        $tweetText = str_replace(
-          array_keys($links), 
-          array_values($links), 
-          $tweetText
-        );
       }
-      $out[] = arc_Twitter::makeLinks(htmlentities($tweetText, ENT_QUOTES,'UTF-8'))
+      $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'), $links, $full_urls)
         .' '.tag(htmlentities($date),'span',' class="'.$class_posted.'"');
     }
   }
@@ -1230,11 +1229,43 @@ class arc_twitter extends TwitterOAuth {
     }
 
     // create Twitter and external links in text
-    public static function makeLinks($text)
+    public static function makeLinks($text, $urls = false, $expandedUrls = false)
     {
+    	if ($urls!==false) {
+
+    		foreach ($urls as $tcoUrl => $url) 
+    		{
+    			if (!$expandedUrls)
+    			{
+    				$url['expanded_url'] = $tcoUrl;
+    				$url['display_url'] = preg_replace('|^https?:\/\/|i', '', $tcoUrl);
+    			}
+    			$text = str_replace(
+    				$tcoUrl,
+    				"<a href='{$url['expanded_url']}'>{$url['display_url']}</a>",
+    				$text
+    			);
+    		}
+
+    	} 
+    	elseif ($urls!==false)
+    	{
+
+    	} 
+    	else 
+    	{
+    		$links = array(
+	            '/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i' => "<a href='$0' rel='external'>$0</a>",
+	            '/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i' => "<a href='http://www.$2$3' rel='external'>www.$2$3</a>"
+	        );
+	        $text = preg_replace(
+	            array_keys($links),
+	            array_values($links),
+	            $text
+	        );
+    	}
+        
         $links = array(
-            '/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i' => "<a href='$0' rel='external'>$0</a>",
-            '/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i' => "<a href='http://www.$2$3' rel='external'>www.$2$3</a>",
             '/(^|\s).?@([a-z_A-Z0-9]+)/' => "$1<a href='http://twitter.com/$2' rel='external'>@$2</a>",
             '/(^|\s)(\#([a-z_A-Z0-9:_-]+))/' => "$1<a href='http://twitter.com/search?q=%23$3' rel='external'>$2</a>"
         );
