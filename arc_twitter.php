@@ -939,11 +939,21 @@ JS;
 	if ($tweets) foreach ($tweets as $tweet) {
 		$time = strtotime(htmlentities($tweet->created_at));
 		$date = safe_strftime($prefs['archive_dateformat'],$time);
+		$links = false;
+		if (isset($tweet->entities->urls)) {
+			$links = array();
+			foreach ($tweet->entities->urls as $url) {
+				$links[$url->url] = array(
+					'expanded_url' => $url->expanded_url,
+					'display_url' => $url->display_url
+				);
+			}
+		}
 		$out.= tr(td($date,'span')
 			.td(arc_Twitter::makeLinks(htmlentities($tweet->text
-				, ENT_QUOTES,'UTF-8')))
+				, ENT_QUOTES,'UTF-8'), $links, true))
 			.td(dLink('arc_admin_twitter','delete','id',$tweet->id_str,''))
-			);
+		);
 	}
 
 	$fields = array(
