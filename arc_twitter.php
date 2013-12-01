@@ -2546,6 +2546,7 @@ h3. Usage
 |replies|1 to include replies, 0 to exclude them from the feed|1| |
 |limit|Maximum number of tweets to display (max. 200)|10|limit=&quot;25&quot;|
 |fetch|Maximum number of tweets to retrieve from Twitter (max. 200)[1]|0|fetch=&quot;50&quot;|
+|full_urls|1 to display full URLs, 0 for t.co URLs|0| |
 |dateformat|Format that update dates will appear as| _Archive date format_|dateformat=&quot;%b %Oe, %I:%M %p&quot;|
 |label|Label for the top of the list| _no label_|label=&quot;My Twitter timeline&quot;|
 |labeltag|Independent wraptag for label| _unset_|labeltag=&quot;h3&quot;|
@@ -2578,6 +2579,7 @@ h3. Usage
 |reply|Username of tweets in reply to| _unset_|reply=&quot;twitter&quot;|
 |mention|Username of user mentioned in tweets (__i.e.__ tweets containing @username)| _unset_|mention=&quot;twitter&quot;|
 |limit|Maximum number of tweets to display (max. 200)|10|limit=&quot;25&quot;|
+|full_urls|1 to display full URLs, 0 for t.co URLs|0| |
 |dateformat|Format that update dates will appear as| _Archive date format_|dateformat=&quot;%b %Oe, %I:%M %p&quot;|
 |label|Label for the top of the list| _no label_| |
 |labeltag|Independent wraptag for label| _unset_| |
