@@ -905,31 +905,35 @@ function arc_admin_twitter($event,$step)
 
 	$js = '<script language="javascript" type="text/javascript">';
 	$js.= <<<JS
-	$(document).ready(function(){
+$(document).ready(function(){
 	var counter = $('<span>', {
 		'text' : '140',
 		'id' : 'tweetcount'
-	  });
+	});
 	$('.message').append(counter);
-			var counterStyle = 'font-weight:bold;padding-left:.5em;font-size:2em;line-height:1.2em;';
+	var counterStyle = 'font-weight:bold;padding-left:.5em;font-size:2em;line-height:1.2em;';
+	$('#tweetcount').attr('style', counterStyle+'color:#ccc;');
+	$('#message').keyup(function() {
+		// We need to account for t.co URL shortening in our count (22 characters for a URL, 23 if https).
+		var message = $('#message').val();
+		var urlPattern = /(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/;
+		message = message.replace(urlPattern, '$1xxxxxxxxxxxxxxxxxx');
+		var count = 140-message.length;
+		$('#tweetcount').html(count+''); // hack to force output of 0
+		if (count<0) {
+			$('input.publish').prop('disabled', 'disabled');
+		} else {
+			$('input.publish').prop('disabled', '');
+		}
+		if (count<0) {
+			$('#tweetcount').attr('style', counterStyle+'color:#f00;');
+		} else if (count<10) {
+			$('#tweetcount').attr('style', counterStyle+'color:#000;');
+		} else {
 			$('#tweetcount').attr('style', counterStyle+'color:#ccc;');
-			$('#message').keyup(function() {
-				var count = 140-$('#message').val().length;
-				$('#tweetcount').html(count+''); // hack to force output of 0
-				if (count<0) {
-					$('input.publish').prop('disabled', 'disabled');
-				} else {
-					$('input.publish').prop('disabled', '');
-				}
-				if (count<0) {
-					$('#tweetcount').attr('style', counterStyle+'color:#f00;');
-				} else if (count<10) {
-					$('#tweetcount').attr('style', counterStyle+'color:#000;');
-				} else {
-					$('#tweetcount').attr('style', counterStyle+'color:#ccc;');
-				}
-			})
-		});
+		}
+	})
+});
 JS;
 	$js.= "</script>";
 
