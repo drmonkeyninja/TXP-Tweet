@@ -874,7 +874,11 @@ function arc_admin_twitter($event,$step)
 
 		// fetch and clean message
 		$message = strip_tags(gps('message'));
-		$count = strlen($message);
+		// We need to account for t.co URL shortening in our count (22 characters for a URL, 23 if https).
+		$urlPattern = "/(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/";
+		$tmpMessage = preg_replace($urlPattern, "$1xxxxxxxxxxxxxxxxxx", $message);
+		$count = strlen($tmpMessage);
+		unset($tmpMessage);
 
 		if ($count<=140 && $count>0) { // post update
 			$result = $twit->post('statuses/update', array('status' => $message));
