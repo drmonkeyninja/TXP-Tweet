@@ -45,7 +45,7 @@ if (!isset($prefs['arc_twitter_cache_dir']))
 if (!isset($prefs['arc_twitter_tweet_default']))
   set_pref('arc_twitter_tweet_default', 1, 'arc_twitter', 2, 'yesnoRadio');
 if (!isset($prefs['arc_twitter_url_method']))
-  set_pref('arc_twitter_url_method', 'tinyurl', 'arc_twitter', 2,
+  set_pref('arc_twitter_url_method', 'full', 'arc_twitter', 2,
 	'arc_twitter_url_method_select');
 if (!isset($prefs['arc_short_url']))
   set_pref('arc_short_url', 0, 'arc_twitter', 2, 'yesnoRadio');
@@ -571,10 +571,13 @@ function arc_twitter_uninstall()
 }
 function arc_twitter_url_method_select($name, $val)
 {
-	$methods = array('tinyurl' => 'Tinyurl',
-	  'isgd' => 'Is.gd',
-	  'arc_twitter' => 'TXP Tweet',
-	  'smd' => 'smd_short_url');
+	$methods = array(
+		'full' => 'Do not shorten',
+		'tinyurl' => 'Tinyurl',
+		'isgd' => 'Is.gd',
+		'arc_twitter' => 'TXP Tweet',
+		'smd' => 'smd_short_url'
+	);
 	return selectInput($name, $methods, $val, '', '', $name);
 }
 function arc_twitter_tab_select($name, $val)
@@ -1108,6 +1111,11 @@ function arc_article_tweet($event,$step)
 			if ($tweet_id) {
 
 				$tweet = addslashes($tweet);
+
+				// If we're not using a URL shortener don't store the short URL.
+				if ($prefs['arc_twitter_url_method']=='full') {
+					$short_url = null;
+				}
 
 				// update arc_twitter table with tweet
 				$sql = "INSERT INTO ".PFX."arc_twitter (article_id,tweet_id,tweet,tinyurl) ";
