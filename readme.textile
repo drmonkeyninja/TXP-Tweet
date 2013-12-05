@@ -7,4 +7,4 @@ TXP Tweet consists of two plugins: arc_twitter (the core Textpattern-Twitter int
 * arc_twitter allows a Textpattern site to push and pull tweets from Twitter
 * arc_twitter_intents extends arc_twitter by adding access to the Twitter web intents
 
-The latest stable release can be obtained from the "TXP Tweet's homepage":http://redhotchilliproject.com/txp/arc_twitter.
+The latest stable release can be obtained from the "TXP Tweet's homepage":http://andy-carter.com/txp/arc_twitter.
