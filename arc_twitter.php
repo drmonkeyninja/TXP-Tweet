@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '4.2';
+$plugin['version'] = '4.2.1';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://andy-carter.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -151,13 +151,23 @@ function arc_twitter($atts)
 	  $time = strtotime(htmlentities($tweet->created_at));
 	  $date = safe_strftime($dateformat,$time);
 	  $links = false;
-	  if (isset($tweet->entities->urls)) {
+	  if (isset($tweet->entities->urls) || isset($tweet->entities->media)) {
 		$links = array();
+	  }
+	  if (isset($tweet->entities->urls)) {
 		foreach ($tweet->entities->urls as $url) {
-		  $links[$url->url] = array(
-			'expanded_url' => $url->expanded_url,
-			'display_url' => $url->display_url
-		  );
+			$links[$url->url] = array(
+				'expanded_url' => $url->expanded_url,
+				'display_url' => $url->display_url
+			);
+		}
+	  }
+	  if (isset($tweet->entities->media)) {
+		foreach ($tweet->entities->media as $url) {
+			$links[$url->url] = array(
+				'expanded_url' => $url->expanded_url,
+				'display_url' => $url->display_url
+			);
 		}
 	  }
 	  $out[] = arc_Twitter::makeLinks(htmlentities($tweet->text, ENT_QUOTES,'UTF-8'), $links, $full_urls)
