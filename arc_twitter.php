@@ -1085,9 +1085,13 @@ function arc_article_tweet($event,$step)
 			$suffix  = trim(gps('arc_twitter_suffix'));
 			$suf_len = strlen($suffix);
 			$suffix  = ($suffix && $suf_len<=40) ? ' '.$suffix : '';
-			$url_len = strlen($short_url)+1; // count URL length + 1 for prefixed space
-			if ($prefix) $pre_len += 1;
-			if ($suffix) $suf_len += 1;
+			$url_len = preg_match('|^https|i', $short_url) ? 23 : 22; // count URL length + 1 for prefixed space
+			if ($prefix) {
+				$pre_len += 1;
+			}
+			if ($suffix) {
+				$suf_len += 1;
+			}
 			if ((strlen($article['Title'])+$url_len+$pre_len+$suf_len)>140) {
 				$article['Title'] = substr($article['Title'],0,135-$url_len-$pre_len-$suf_len).'...';
 			}
@@ -1143,36 +1147,40 @@ function arc_shorten_url($url, $method='', $atts=array())
 
   switch ($method) {
 	case 'smd': // create a shortened URL using SMD Short URL
-	  return ($atts['id']) ? hu.$atts['id'] : false; break;
+		return ($atts['id']) ? hu.$atts['id'] : false; break;
 	case 'arc_twitter': // native URL shortening
 
-	  return ($atts['id']) ? PROTOCOL.$prefs['arc_short_site_url'].'/'.$atts['id'] : false;
-	  break;
+		return ($atts['id']) ? PROTOCOL.$prefs['arc_short_site_url'].'/'.$atts['id'] : false;
+		break;
 
 	case 'isgd':
 
-	  $u = 'http://is.gd/api.php?longurl='.urlencode($url);
-	  curl_setopt($ch, CURLOPT_URL, $u);
+		$u = 'http://is.gd/api.php?longurl='.urlencode($url);
+		curl_setopt($ch, CURLOPT_URL, $u);
 
-	  $tinyurl = curl_exec($ch);
-	  if ($tinyurl!='Error' && $tinyurl!='') {
-		return $tinyurl;
-	  } else {
-		trigger_error('arc_twitter failed to get a is.gd URL for '
-			.$url,E_USER_WARNING);
-	  }
-	  break;
+		$tinyurl = curl_exec($ch);
+		if ($tinyurl!='Error' && $tinyurl!='') {
+			return $tinyurl;
+		} else {
+			trigger_error('arc_twitter failed to get a is.gd URL for '
+				.$url,E_USER_WARNING);
+		}
+		break;
 
-	case 'tinyurl': default: // create a shortened URL using TinyURL
+	case 'tinyurl': // create a shortened URL using TinyURL
 
-	  $u = 'http://tinyurl.com/api-create.php?url='.urlencode($url);
-	  curl_setopt($ch, CURLOPT_URL, $u);
-	  $tinyurl = curl_exec($ch);
-	  if ($tinyurl!='Error' && $tinyurl!='') {
-		return $tinyurl;
-	  } else {
-		trigger_error('arc_twitter failed to get a TinyURL for '.$url,E_USER_WARNING);
-	  }
+		$u = 'http://tinyurl.com/api-create.php?url='.urlencode($url);
+		curl_setopt($ch, CURLOPT_URL, $u);
+		$tinyurl = curl_exec($ch);
+		if ($tinyurl!='Error' && $tinyurl!='') {
+			return $tinyurl;
+		} else {
+			trigger_error('arc_twitter failed to get a TinyURL for '.$url,E_USER_WARNING);
+		}
+
+	default:
+
+		return $url;
 
   }
 
