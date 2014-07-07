@@ -1105,10 +1105,14 @@ function arc_article_tweet($event,$step)
 			// Need to manually update the 'URL only title' before building the
 			// URL
 			$article['url_title'] = gps('url_title');
+			
 			// Make short URL
 			$url = permlinkurl($article);
-			$short_url = arc_shorten_url($url,$prefs['arc_twitter_url_method'],
-				array('id'=>$article_id));
+			$short_url = arc_shorten_url(
+				$url,
+				$prefs['arc_twitter_url_method'],
+				array('id' => $article_id)
+			);
 
 			if (!$short_url) { // Failed to obtain a shortened URL, do not tweet!
 				$arc_twitter['error'] = 'Unable to obtain a short URL for this article.';
@@ -1192,7 +1196,7 @@ function arc_shorten_url($url, $method='', $atts=array())
 
   if (!empty($prefs['arc_twitter_utm'])) {
 
-	$utm = 'utm_source=twitter.com&utm_medium=social&utm_campaign=arc_twitter&utm_content=txp%3A' . $atts['id'];
+	$utm = 'utm_source=twitter.com&utm_medium=social&utm_campaign=arc_twitter&utm_content=txp:' . $atts['id'];
 	$separator = (parse_url($url, PHP_URL_QUERY) == NULL) ? '?' : '&';
 	$url .= $separator . $utm;
 
