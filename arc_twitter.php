@@ -34,28 +34,38 @@ register_callback('arc_twitter_prefs','plugin_prefs.arc_twitter');
 /*
  * Setup initial preferences if not in the txp_prefs table.
  */
-if (!isset($prefs['arc_twitter_user']))
+if (!isset($prefs['arc_twitter_user'])) {
 	set_pref('arc_twitter_user', '', 'arc_twitter', 1, 'text_input');
-if (!isset($prefs['arc_twitter_prefix']))
-  set_pref('arc_twitter_prefix','Just posted:', 'arc_twitter', 2, 'text_input');
-if (!isset($prefs['arc_twitter_suffix']))
-  set_pref('arc_twitter_suffix','', 'arc_twitter', 2, 'text_input');
-if (!isset($prefs['arc_twitter_cache_dir']))
-  set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].$prefs['tempdir'], 'arc_twitter', 1, 'text_input');
-if (!isset($prefs['arc_twitter_tweet_default']))
-  set_pref('arc_twitter_tweet_default', 1, 'arc_twitter', 2, 'yesnoRadio');
-if (!isset($prefs['arc_twitter_url_method']))
-  set_pref('arc_twitter_url_method', 'full', 'arc_twitter', 2,
-	'arc_twitter_url_method_select');
-if (!isset($prefs['arc_short_url']))
-  set_pref('arc_short_url', 0, 'arc_twitter', 2, 'yesnoRadio');
-if (!isset($prefs['arc_short_site_url']))
-  set_pref('arc_short_site_url', $prefs['siteurl'], 'arc_twitter', 2, 'text_input');
+}
+if (!isset($prefs['arc_twitter_prefix'])) {
+	set_pref('arc_twitter_prefix','Just posted:', 'arc_twitter', 2, 'text_input');
+}
+if (!isset($prefs['arc_twitter_suffix'])) {
+	set_pref('arc_twitter_suffix','', 'arc_twitter', 2, 'text_input');
+}
+if (!isset($prefs['arc_twitter_cache_dir'])) {
+	set_pref('arc_twitter_cache_dir',$txpcfg['txpath'].$prefs['tempdir'], 'arc_twitter', 1, 'text_input');
+}
+if (!isset($prefs['arc_twitter_tweet_default'])) {
+	set_pref('arc_twitter_tweet_default', 1, 'arc_twitter', 2, 'yesnoRadio');
+}
+if (!isset($prefs['arc_twitter_url_method'])) {
+	set_pref('arc_twitter_url_method', 'full', 'arc_twitter', 2, 'arc_twitter_url_method_select');
+}
+if (!isset($prefs['arc_short_url'])) {
+	set_pref('arc_short_url', 0, 'arc_twitter', 2, 'yesnoRadio');
+}
+if (!isset($prefs['arc_short_site_url'])) {
+	set_pref('arc_short_site_url', $prefs['siteurl'], 'arc_twitter', 2, 'text_input');
+}
 // Make sure that the Twitter tab has been defined
 if (!isset($prefs['arc_twitter_tab'])) {
   set_pref('arc_twitter_tab', 'extensions', 'arc_twitter', 2,
 	'arc_twitter_tab_select');
 	$prefs['arc_twitter_tab'] = 'extensions';
+}
+if (!isset($prefs['arc_short_utm'])) {
+	set_pref('arc_short_utm', 0, 'arc_twitter', 2, 'yesnoRadio');
 }
 
 // Check if arc_short_url is enabled
@@ -601,17 +611,18 @@ function arc_twitter_tab_select($name, $val)
 function arc_twitter_prefs($event,$step)
 {
 
-	global $prefs,$arc_twitter_consumerKey,$arc_twitter_consumerSecret;
+	global $prefs, $arc_twitter_consumerKey, $arc_twitter_consumerSecret;
 
-	$user          = $prefs['arc_twitter_user'];
-	$prefix        = $prefs['arc_twitter_prefix'];
-	$suffix        = $prefs['arc_twitter_suffix'];
+	$user = $prefs['arc_twitter_user'];
+	$prefix = $prefs['arc_twitter_prefix'];
+	$suffix = $prefs['arc_twitter_suffix'];
 	$tweet_default = $prefs['arc_twitter_tweet_default'];
-	$url_method    = $prefs['arc_twitter_url_method'];
-	$short_url     = $prefs['arc_short_url'];
-	$short_site_url= $prefs['arc_short_site_url'];
-	$cache_dir     = $prefs['arc_twitter_cache_dir'];
-	$tab           = $prefs['arc_twitter_tab'];
+	$url_method = $prefs['arc_twitter_url_method'];
+	$short_url = $prefs['arc_short_url'];
+	$short_site_url = $prefs['arc_short_site_url'];
+	$cache_dir = $prefs['arc_twitter_cache_dir'];
+	$tab = $prefs['arc_twitter_tab'];
+	$utm = !empty($prefs['arc_twitter_utm']) ? $prefs['arc_twitter_utm'] : 0;
 
 	switch ($step) {
 		case 'prefs_save': pagetop('TXP Tweet', 'Preferences saved'); break;
@@ -660,6 +671,7 @@ function arc_twitter_prefs($event,$step)
 	}
 
 	if ($step=="prefs_save") {
+
 		$prefix = trim(gps('arc_twitter_prefix'));
 		$suffix = trim(gps('arc_twitter_suffix'));
 		$tweet_default = gps('arc_twitter_tweet_default');
@@ -668,6 +680,8 @@ function arc_twitter_prefs($event,$step)
 		$short_site_url = gps('arc_short_site_url');
 		$cache_dir = gps('arc_twitter_cache_dir');
 		$tab = gps('arc_twitter_tab');
+		$utm = gps('arc_twitter_utm');
+
 		if (strlen($prefix)<=20) {
 			set_pref('arc_twitter_prefix',$prefix);
 		} else {
@@ -680,13 +694,17 @@ function arc_twitter_prefs($event,$step)
 		}
 		$tweet_default = ($tweet_default) ? 1 : 0;
 		$short_url = ($short_url) ? 1 : 0;
-		if (!$short_site_url) $short_site_url = $prefs['siteurl'];
-		set_pref('arc_twitter_tweet_default',$tweet_default);
-		set_pref('arc_short_url',$short_url);
-		set_pref('arc_twitter_url_method',$url_method);
-		set_pref('arc_short_site_url',$short_site_url);
-		set_pref('arc_twitter_cache_dir',$cache_dir);
-		set_pref('arc_twitter_tab',$tab);
+		if (!$short_site_url) {
+			$short_site_url = $prefs['siteurl'];
+		}
+		set_pref('arc_twitter_tweet_default', $tweet_default);
+		set_pref('arc_short_url', $short_url);
+		set_pref('arc_twitter_url_method', $url_method);
+		set_pref('arc_short_site_url', $short_site_url);
+		set_pref('arc_twitter_cache_dir', $cache_dir);
+		set_pref('arc_twitter_tab', $tab);
+		set_pref('arc_twitter_utm', $utm);
+
 	}
 
 	if ( $step!='register' ) {
@@ -699,50 +717,57 @@ function arc_twitter_prefs($event,$step)
 
 			// Define the fields ready to build the form
 			$fields = array(
-		'Tweet Settings' => array(
-		  'arc_twitter_prefix' => array(
-			'label' => 'Tweet prefix',
-			'value' => $prefix
-		  ),
-		  'arc_twitter_suffix' => array(
-			'label' => 'Tweet suffix',
-			'value' => $suffix
-		  ),
-		  'arc_twitter_tweet_default' => array(
-			'label' => 'Tweet articles by default',
-			'type' => 'yesnoRadio',
-			'value' => $tweet_default
-		  ),
-		  'arc_twitter_url_method' => array(
-			'label' => 'URL shortner',
-			'type' => 'arc_twitter_url_method_select',
-			'value' => $url_method
-		  )
-		),
-		'TXP Tweet short URL' => array(
-		  'arc_short_url' => array(
-			'label' => 'Enable TXP Tweet short URL redirect',
-			'type' => 'yesnoRadio',
-			'value' => $short_url
-		  ),
-		  'arc_short_site_url' => array(
-			'label' => 'TXP Tweet short site URL',
-			'value' => $short_site_url
-		  )
-		),
-		'Twitter Tab' => array(
-		  'arc_twitter_tab' => array(
-			'label' => 'Location of tab',
-			'type' => 'arc_twitter_tab_select',
-			'value' => $tab
-		  )
-		),
-		'Cache' => array(
-		  'arc_twitter_cache_dir' => array(
-			'label' => 'Cache directory',
-			'value' => $cache_dir
-		  )
-		)
+				'Tweet Settings' => array(
+				  'arc_twitter_prefix' => array(
+					'label' => 'Tweet prefix',
+					'value' => $prefix
+				  ),
+				  'arc_twitter_suffix' => array(
+					'label' => 'Tweet suffix',
+					'value' => $suffix
+				  ),
+				  'arc_twitter_tweet_default' => array(
+					'label' => 'Tweet articles by default',
+					'type' => 'yesnoRadio',
+					'value' => $tweet_default
+				  ),
+				  'arc_twitter_url_method' => array(
+					'label' => 'URL shortner',
+					'type' => 'arc_twitter_url_method_select',
+					'value' => $url_method
+				  )
+				),
+				'TXP Tweet short URL' => array(
+				  'arc_short_url' => array(
+					'label' => 'Enable TXP Tweet short URL redirect',
+					'type' => 'yesnoRadio',
+					'value' => $short_url
+				  ),
+				  'arc_short_site_url' => array(
+					'label' => 'TXP Tweet short site URL',
+					'value' => $short_site_url
+				  )
+				),
+				'Twitter Tab' => array(
+				  'arc_twitter_tab' => array(
+					'label' => 'Location of tab',
+					'type' => 'arc_twitter_tab_select',
+					'value' => $tab
+				  )
+				),
+				'Google Analytics' => array(
+					'arc_twitter_utm' => array(
+						'label' => 'Enable UTM',
+						'type' => 'yesnoRadio',
+						'value' => $utm
+					)
+				),
+				'Cache' => array(
+				  'arc_twitter_cache_dir' => array(
+					'label' => 'Cache directory',
+					'value' => $cache_dir
+				  )
+				)
 			);
 
 			$form = "<h2>Twitter account details</h2>"
@@ -1167,7 +1192,7 @@ function arc_shorten_url($url, $method='', $atts=array())
 
   if (!empty($prefs['arc_twitter_utm'])) {
 
-  	$utm = 'utm_source=twitter.com&utm_medium=social&utm_campaign=arc_twitter&utm_content=txp%3A' . $atts['id'];
+	$utm = 'utm_source=twitter.com&utm_medium=social&utm_campaign=arc_twitter&utm_content=txp%3A' . $atts['id'];
 	$separator = (parse_url($url, PHP_URL_QUERY) == NULL) ? '?' : '&';
 	$url .= $separator . $utm;
 
@@ -1179,7 +1204,7 @@ function arc_shorten_url($url, $method='', $atts=array())
 		$url = !empty($atts['id']) ? hu . $atts['id'] : false;
 		$url .= ($url!==false && !empty($utm)) ? '?' . $utm : false;
 		return $url; break;
-		
+
 	case 'arc_twitter': // native URL shortening
 
 		$url = !empty($atts['id']) ? PROTOCOL . $prefs['arc_short_site_url'] . '/' . $atts['id'] : false;
