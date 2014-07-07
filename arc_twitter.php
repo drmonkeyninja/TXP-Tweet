@@ -1163,12 +1163,28 @@ function arc_shorten_url($url, $method='', $atts=array())
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
+  $utm = null;
+
+  if (!empty($prefs['arc_twitter_utm'])) {
+
+  	$utm = 'utm_source=twitter.com&utm_medium=social&utm_campaign=arc_twitter&utm_content=txp%3A' . $atts['id'];
+	$separator = (parse_url($url, PHP_URL_QUERY) == NULL) ? '?' : '&';
+	$url .= $separator . $utm;
+
+  }
+
   switch ($method) {
 	case 'smd': // create a shortened URL using SMD Short URL
-		return ($atts['id']) ? hu.$atts['id'] : false; break;
+
+		$url = !empty($atts['id']) ? hu . $atts['id'] : false;
+		$url .= ($url!==false && !empty($utm)) ? '?' . $utm : false;
+		return $url; break;
+		
 	case 'arc_twitter': // native URL shortening
 
-		return ($atts['id']) ? PROTOCOL.$prefs['arc_short_site_url'].'/'.$atts['id'] : false;
+		$url = !empty($atts['id']) ? PROTOCOL . $prefs['arc_short_site_url'] . '/' . $atts['id'] : false;
+		$url .= ($url!==false && !empty($utm)) ? '?' . $utm : false;
+		return $url;
 		break;
 
 	case 'isgd':
