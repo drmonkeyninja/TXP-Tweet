@@ -1361,7 +1361,7 @@ class arc_twitter extends TwitterOAuth {
 		else 
 		{
 			$links = array(
-				'/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+\.]+)\b/i' => "<a href='$0' rel='external'>$0</a>",
+				'/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+-\.]+)(\?[\.a-z=&0-4:_-]+){0,1}\b/i' => "<a href='$0' rel='external'>$0</a>",
 				'/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i' => "<a href='http://www.$2$3' rel='external'>www.$2$3</a>"
 			);
 			$text = preg_replace(
