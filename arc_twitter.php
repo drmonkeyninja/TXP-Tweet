@@ -1065,10 +1065,13 @@ function arc_append_twitter($event, $step, $data, $rs1)
 	 send_script_response('$("#arc_twitter").remove();');
 	}
 
-	if ($rs1['ID'] && $rs2['tweet_id']) {
-		$content = tag(arc_Twitter::makeLinks($rs2['tweet']),'p');
-		return $data.fieldset($content, 'Twitter update', 'arc_twitter');
-	} else {
+	if ($rs1['ID'] && $rs2['tweet_id'])
+	{
+		$content = arc_Twitter::makeLinks($rs2['tweet']);
+		return $data.fieldset(tag($content, 'p'), 'Twitter update', 'arc_twitter');
+	}
+	else
+	{
 		$var = gps('arc_tweet_this');
 		$var = ($rs1['ID']&&!$var) ? 0 : $prefs['arc_twitter_tweet_default'];
 		$content  = tag(yesnoRadio('arc_tweet_this', $var, '', 'arc_tweet_this'),'p');
@@ -1361,7 +1364,7 @@ class arc_twitter extends TwitterOAuth {
 		else 
 		{
 			$links = array(
-				'/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+-\.]+)(\?[\.a-z=&0-4:_-]+){0,1}\b/i' => "<a href='$0' rel='external'>$0</a>",
+				'/\b(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?([\/\w+-\.]+)(\?[\.a-z=&0-4:_-]+){0,1}\b/i' => "<a href='$0' rel='external'>$2$3$4</a>",
 				'/\b(^|\s)www.([a-z_A-Z0-9]+)((\.[a-z]+)+)\b/i' => "<a href='http://www.$2$3' rel='external'>www.$2$3</a>"
 			);
 			$text = preg_replace(
