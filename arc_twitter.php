@@ -1073,9 +1073,9 @@ function arc_append_twitter($event, $step, $data, $rs1)
 		$var = ($rs1['ID']&&!$var) ? 0 : $prefs['arc_twitter_tweet_default'];
 		$content  = tag(yesnoRadio('arc_tweet_this', $var, '', 'arc_tweet_this'),'p');
 		$content .= tag(href('Options','#arc_twitter_options', ' onclick="$(\'#arc_twitter_options\').toggle(); return false;"'),'p',' style="margin-top:5px;"');
-		$content .= tag(tag(tag('Tweet prefix','label', ' for="arc_twitter_prefix"')
+		$content .= tag(tag(tag('Tweet prefix','label', ' for="arc_twitter_prefix"') . '<br />'
 			.fInput('text','arc_twitter_prefix',$prefix,'edit','','','22','','arc_twitter_prefix'),'p')
-			.tag(tag('Tweet suffix (eg #hashtags)','label', ' for="arc_twitter_suffix"')
+			.tag(tag('Tweet suffix (eg #hashtags)','label', ' for="arc_twitter_suffix"') . '<br />'
 			.fInput('text','arc_twitter_suffix',$suffix,'edit','','','22','','arc_twitter_suffix'),'p')
 			,'div',' id="arc_twitter_options" class="toggle" style="display:none"');
 		if (isset($arc_twitter['error'])) {
