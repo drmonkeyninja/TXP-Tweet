@@ -2763,6 +2763,8 @@ Tweets are sent in the following format: [_Tweet prefix_] [_Article title_] [_Sh
 
 Please note that once an article has been tweeted the tweet cannot be edited.
 
+If you want to monitor how many clicks you're getting from your TXP tweets in Google Analytics enable UTM in the plugin's preferences. It will add UTM parameters to the URLs tweeted that can then be monitored via the _Campaigns_ section of Google Analytics.
+
 
 h2(#arc_twitter_admin). The Twitter tab
 
