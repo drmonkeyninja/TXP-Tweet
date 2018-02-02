@@ -565,7 +565,7 @@ function arc_twitter_install()
 	$sql.= "(arc_twitterid INTEGER AUTO_INCREMENT PRIMARY KEY,
 		article_id INTEGER(11),
 		tweet_id VARCHAR(100),
-		tweet VARCHAR(140),
+		tweet VARCHAR(280),
 		tinyurl VARCHAR(30));";
 
 	if (!safe_query($sql)) {
@@ -918,7 +918,7 @@ function arc_admin_twitter($event,$step)
 		$count = strlen($tmpMessage);
 		unset($tmpMessage);
 
-		if ($count<=140 && $count>0) { // post update
+		if ($count<=280 && $count>0) { // post update
 			$result = $twit->post('statuses/update', array('status' => $message));
 		} else { // message too long, JavaScript interface should prevent this
 			$result = false;
@@ -949,7 +949,7 @@ function arc_admin_twitter($event,$step)
 	$js.= <<<JS
 $(document).ready(function(){
 	var counter = $('<span>', {
-		'text' : '140',
+		'text' : '280',
 		'id' : 'tweetcount'
 	});
 	$('.message').append(counter);
@@ -960,7 +960,7 @@ $(document).ready(function(){
 		var message = $('#message').val();
 		var urlPattern = /(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/;
 		message = message.replace(urlPattern, '$1xxxxxxxxxxxxxxxxxx');
-		var count = 140-message.length;
+		var count = 280-message.length;
 		$('#tweetcount').html(count+''); // hack to force output of 0
 		if (count<0) {
 			$('input.publish').prop('disabled', 'disabled');
@@ -1137,7 +1137,7 @@ function arc_article_tweet($event,$step)
 			if ($suffix) {
 				$suf_len += 1;
 			}
-			if ((strlen($article['Title'])+$url_len+$pre_len+$suf_len)>140) {
+			if ((strlen($article['Title'])+$url_len+$pre_len+$suf_len)>280) {
 				$article['Title'] = substr($article['Title'],0,135-$url_len-$pre_len-$suf_len).'...';
 			}
 			$tweet = $prefix.$article['Title']." ".$short_url.$suffix;
