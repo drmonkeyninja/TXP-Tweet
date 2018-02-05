@@ -1,7 +1,7 @@
 <?php
 
 $plugin['name'] = 'arc_twitter';
-$plugin['version'] = '4.4.0';
+$plugin['version'] = '4.5.0';
 $plugin['author'] = 'Andy Carter';
 $plugin['author_uri'] = 'http://andy-carter.com/';
 $plugin['description'] = '<a href="http://www.twitter.com">Twitter</a> for Textpattern';
@@ -2615,7 +2615,7 @@ h2(#arc_twitter_requirements). Plugin requirements
 
 arc_twitter's minumum requirements:
 
-* Textpattern 4.5+
+* Textpattern 4.6+
 * PHP 5 and cURL
 
 
