@@ -559,7 +559,7 @@ function arc_twitter_follow_button($atts, $thing=null)
 // Installation function - builds MySQL table
 function arc_twitter_install()
 {
-
+	global $DB;
 	// For first install, create table for tweets
 	$sql = "CREATE TABLE IF NOT EXISTS ".PFX."arc_twitter ";
 	$sql.= "(arc_twitterid INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -570,6 +570,14 @@ function arc_twitter_install()
 
 	if (!safe_query($sql)) {
 		return 'Error - unable to create arc_twitter table';
+	}
+
+	// Check if we need to update an existing table to use the larger string length.
+	$sql = 'SELECT column_type FROM information_schema.columns WHERE column_name = \'tweet\' AND table_name = \'' . safe_pfx('arc_twitter') . '\'';
+	$sql .= ' AND table_schema = \'' . $DB->db . '\'';
+	$result = nextRow(safe_query($sql));
+	if (! empty($result['column_type']) && strpos($result['column_type'], 'varchar(140)') !== false) {
+		safe_alter('arc_twitter', 'CHANGE tweet tweet VARCHAR(280)');
 	}
 
 }
