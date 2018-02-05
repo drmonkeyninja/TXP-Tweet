@@ -23,6 +23,16 @@ global $prefs,$txpcfg,$arc_twitter_consumerKey,$arc_twitter_consumerSecret;
 
 $arc_twitter = array();
 
+// Register tags.
+Txp::get('\Textpattern\Tag\Registry')
+    ->register('arc_twitter')
+    ->register('arc_twitter_search')
+    ->register('arc_twitter_tweet_button')
+    ->register('arc_twitter_follow_button')
+    ->register('arc_twitter_tweet_url')
+    ->register('arc_twitter_tinyurl')
+    ->register('arc_twitter_widget_js');
+
 $arc_twitter_consumerKey = 'nKcXslwzZhBd0kfKMetnPA';
 $arc_twitter_consumerSecret = 'C6nSPCL3eeHGTBhKCgwd9oclcuD0srB8WVkfXQYC54';
 

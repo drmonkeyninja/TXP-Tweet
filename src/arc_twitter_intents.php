@@ -24,6 +24,13 @@ global $prefs,$txpcfg;
 // arc_twitter_intents requires arc_twitter v3.1 or higher
 require_plugin('arc_twitter');
 
+// Register tags.
+Txp::get('\Textpattern\Tag\Registry')
+    ->register('arc_twitter_intent_follow')
+    ->register('arc_twitter_intent_favorite')
+    ->register('arc_twitter_intent_retweet')
+    ->register('arc_twitter_intent_reply');
+
 if (@txpinterface == 'admin') {
     register_callback('_arc_twitter_auto_enable', 'plugin_lifecycle.arc_twitter_intents', 'installed');
 }
@@ -40,25 +47,25 @@ function arc_twitter_intent_follow($atts, $thing=null)
         'optimise_js' => false,
         'class'     => ''
     ),$atts));
-    
+
     $q = ($user_id) ? 'user_id='.$user_id : 'screen_name='.$user;
-    
-    $lang = _arc_twitter_intents_lang($lang);    
+
+    $lang = _arc_twitter_intents_lang($lang);
     $q .= '&amp;lang='.urlencode($lang);
-    
+
     $thing = ($thing===null) ? 'Follow' : parse($thing);
-    
+
     $html = href($thing,'http://twitter.com/intent/user?'.$q
       , ' class="'.$class.'"');
-      
+
     $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-      
+
     return $js.$html;
 }
 
 function arc_twitter_intent_favorite($atts, $thing=null)
 {
-    global $prefs, $thisarticle; 
+    global $prefs, $thisarticle;
 
     extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'],
@@ -69,40 +76,40 @@ function arc_twitter_intent_favorite($atts, $thing=null)
         'id'        => '',
         'class'     => ''
     ),$atts));
-    
+
     if ($id || $thisarticle['thisid']) {
-    
+
       $q = 'related='.$user;
       if ($related) $q .= urlencode(($q?',':'related=').$related);
-      
+
       if (!$id) {
         $row = safe_row("tweet_id"
         , 'arc_twitter', "article_id={$thisarticle['thisid']}");
         if (!$id = $row['tweet_id']) return false;
       }
-      
+
       $q .= '&amp;tweet_id='.$id;
-      
-      $lang = _arc_twitter_intents_lang($lang);    
+
+      $lang = _arc_twitter_intents_lang($lang);
       $q .= '&amp;lang='.urlencode($lang);
-      
+
       $thing = ($thing===null) ? 'Favorite' : parse($thing);
-      
+
       $html = href($thing,'http://twitter.com/intent/favorite?'.$q
         , ' class="'.$class.'"');
-        
+
       $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-        
+
       return $js.$html;
-    
+
     }
-    
+
     return false;
 }
 
 function arc_twitter_intent_retweet($atts, $thing=null)
 {
-    global $prefs, $thisarticle; 
+    global $prefs, $thisarticle;
 
     extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'],
@@ -113,40 +120,40 @@ function arc_twitter_intent_retweet($atts, $thing=null)
         'id'        => '',
         'class'     => ''
     ),$atts));
-    
+
     if ($id || $thisarticle['thisid']) {
-    
+
       $q = 'related='.$user;
       if ($related) $q .= urlencode(($q?',':'related=').$related);
-      
+
       if (!$id) {
         $row = safe_row("tweet_id"
         , 'arc_twitter', "article_id={$thisarticle['thisid']}");
         if (!$id = $row['tweet_id']) return false;
       }
-      
+
       $q .= '&amp;tweet_id='.$id;
-      
-      $lang = _arc_twitter_intents_lang($lang);    
+
+      $lang = _arc_twitter_intents_lang($lang);
       $q .= '&amp;lang='.urlencode($lang);
-      
+
       $thing = ($thing===null) ? 'Retweet' : parse($thing);
-      
+
       $html = href($thing,'http://twitter.com/intent/retweet?'.$q
         , ' class="'.$class.'"');
-        
+
       $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-        
+
       return $js.$html;
-    
+
     }
-    
+
     return false;
 }
 
 function arc_twitter_intent_reply($atts, $thing=null)
 {
-    global $prefs, $thisarticle; 
+    global $prefs, $thisarticle;
 
     extract(lAtts(array(
         'user'      => $prefs['arc_twitter_user'],
@@ -158,17 +165,17 @@ function arc_twitter_intent_reply($atts, $thing=null)
         'id'        => '',
         'class'     => ''
     ),$atts));
-    
+
     if ($id || $thisarticle['thisid']) {
-    
+
       if (!$id) {
         $row = safe_row("tweet_id"
         , 'arc_twitter', "article_id={$thisarticle['thisid']}");
         if (!$id = $row['tweet_id']) return false;
       }
-    
+
       $q = 'in_reply_to='.$id;
-      
+
       if ($user) {
         $q .= '&amp;related='.urlencode($user);
       }
@@ -178,21 +185,21 @@ function arc_twitter_intent_reply($atts, $thing=null)
       if ($text) {
         $q .= '&amp;text='.urlencode($text);
       }
-      
-      $lang = _arc_twitter_intents_lang($lang);    
+
+      $lang = _arc_twitter_intents_lang($lang);
       $q .= '&amp;lang='.urlencode($lang);
-      
+
       $thing = ($thing===null) ? 'Reply' : parse($thing);
-      
+
       $html = href($thing,'http://twitter.com/intent/tweet?'.$q
         , ' class="'.$class.'"');
-        
+
       $js = ($include_js) ? _arc_twitter_widget_js($optimise_js?true:false) : '';
-        
+
       return $js.$html;
-    
+
     }
-    
+
     return false;
 }
 
